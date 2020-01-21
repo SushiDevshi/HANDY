@@ -76,7 +76,7 @@ namespace HANDY.Weapon
                 if (!this.hasSwung)
                 {
                     this.hasSwung = true;
-
+                    Util.PlaySound("Play_MULT_shift_hit", this.gameObject);
                 }
                 this.attack.forceVector = this.hammerChildTransform.right * this.forceMagnitude;
                 this.attack.Fire(null);

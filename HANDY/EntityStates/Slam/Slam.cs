@@ -66,6 +66,7 @@ namespace HANDY.Weapon
                 {
                     Ray aimRay = base.GetAimRay();
                     ProjectileManager.instance.FireProjectile(this.projectilePrefab, aimRay.origin, Util.QuaternionSafeLookRotation(aimRay.direction), base.gameObject, this.damageStat * this.earthquakeDamageCoefficient, this.forceMagnitude, Util.CheckRoll(this.critStat, base.characterBody.master), DamageColorIndex.Default, null, -1f);
+                    Util.PlaySound("Play_MULT_shift_hit", base.gameObject);
                     this.hasSwung = true;
                 }
                 this.attack.forceVector = this.hammerChildTransform.right;

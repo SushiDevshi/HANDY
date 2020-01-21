@@ -10,7 +10,7 @@ namespace HANDY.Weapon
 {
     public class POWERSAVER : BaseState
     {
-        public static float baseDuration = 1.5f;
+        public static float baseDuration = .5f;
         private float duration;
 
         public override void OnEnter()

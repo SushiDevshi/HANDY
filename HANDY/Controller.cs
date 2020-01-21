@@ -74,6 +74,7 @@ public class HANDOverclockController : MonoBehaviour
             this.overclockOn = false;
             this.rechargingOnHit = false;
             Util.PlaySound("Play_MULT_shift_end", base.gameObject);
+            this.setStateOnHurt.canBeFrozen = true;
             this.characterBody.isChampion = false;
             this.characterBody.baseDamage = this.characterBody.baseDamage - 1;
             this.characterBody.baseMoveSpeed = this.characterBody.baseMoveSpeed - 2;
