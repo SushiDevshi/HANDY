@@ -22,7 +22,7 @@ namespace HANDY.Weapon
             Debug.Log("characterbody component worked");
             GameObject gameObject = MasterCatalog.FindMasterPrefab("Drone2Master");
             Debug.Log("finding masterprefab worked");
-            GameObject bodyPrefab = BodyCatalog.FindBodyPrefab("Drone2Body");
+            GameObject bodyPrefab = HANDY.HANDHealingDrone;
             Debug.Log("finding body worked");
             var master = component.master;
             Debug.Log("finding attackermaster worked");

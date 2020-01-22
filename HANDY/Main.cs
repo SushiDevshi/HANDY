@@ -24,16 +24,25 @@ namespace HANDY
     })]
     [BepInDependency("com.bepis.r2api")]
     [BepInPlugin("com.SushiDev.HAND", "HAN-D", "1.0.0")]
+
     public class HANDY : BaseUnityPlugin
     {
+        public static GameObject HANDDrone { get; private set; }
+        public static GameObject HANDHealingDrone { get; private set; }
         public void Awake()
         {
             GameObject HAND = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("HAND_CLONE", true);
+            HANDDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone1Body").InstantiateClone("HAND_DRONE_CLONE", true);
+            HANDHealingDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone2Body").InstantiateClone("HAND_DRONEHEALER_CLONE", true);
+
             RegisterNewBody(HAND);
+            RegisterNewBody(HANDDrone);
+            RegisterNewBody(HANDHealingDrone);
 
             var display = HAND.GetComponent<ModelLocator>().modelTransform.gameObject;
 
             CharacterBody characterBody = HAND.GetComponent<CharacterBody>();
+            CharacterBody dronecharacterBody = HANDDrone.GetComponent<CharacterBody>();
             SkillLocator skillLocator = HAND.GetComponent<SkillLocator>();
             CharacterMotor characterMotor = HAND.GetComponent<CharacterMotor>();
             CharacterDirection characterDirection = HAND.GetComponent<CharacterDirection>();
@@ -60,14 +69,27 @@ namespace HANDY
             SurvivorAPI.AddSurvivor(item);
 
             R2API.AssetPlus.Languages.AddToken("HAND_CLONE_NAME_TOKEN", "HAN-D");
+            R2API.AssetPlus.Languages.AddToken("HANDDRONE_CLONE_NAME_TOKEN", "HAN-D Gunner Drone");
+            R2API.AssetPlus.Languages.AddToken("HANDDRONEHEALER_CLONE_NAME_TOKEN", "HAN-D Healing Drone");
             R2API.AssetPlus.Languages.AddToken("HAND_PRIMARY_NAME", "HURT");
             R2API.AssetPlus.Languages.AddToken("HAND_PRIMARY_DESCRIPTION", "APPLY FORCE TO ALL COMBATANTS FOR <color=#E5C962>550% DAMAGE.</color>");
+            R2API.AssetPlus.Languages.AddToken("HAND_SECONDARY_NAME", "DRONE");
+            R2API.AssetPlus.Languages.AddToken("HAND_SECONDARY_DESCRIPTION", "RELEASE A HEALING DRONE <style=cIsUtility>LIVES FOR 25 SECONDS</style>");
             R2API.AssetPlus.Languages.AddToken("HAND_UTILITY_NAME", "OVERCLOCK");
             R2API.AssetPlus.Languages.AddToken("HAND_UTILITY_DESCRIPTION", "INCREASE <color=#E5C962>ATTACK SPEED AND DAMAGE, AND SUMMON TEMPORARY DRONES ON COMBATANT DEATH. </color> ALL ATTACKS <color=#9CE562>HEAL 10% OF DAMAGE DONE</color>. <color=#95CDE5>INCREASE DURATION BY KILLING COMBATANTS.</color>");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_NAME", "FORCED_REASSEMBLY");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_DESCRIPTION", "APPLY GREAT FORCE TO THE GROUND, CAUSING AN EARTHQUAKE TO FORM. DEALS <color=#E5C962>600% DAMAGE</color> TO ENEMIES CAUGHT IN THE IMPACT. CAUSES <color=#E5C962>250% DAMAGE</color> TO ENEMIES CAUGHT IN THE EARTHQUAKE.");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_ALT_NAME", "FORCED_REASSEMBLY");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_ALT_DESCRIPTION", "APPLY GREAT FORCE TO THE GROUND, AND DEAL <color=#E5C962>600% DAMAGE</color> TO ENEMIES CAUGHT IN THE IMPACT.");
+
+            /*GameObject prefab = Resources.Load<GameObject>("prefabs/characterbodies/Drone1Body");
+
+            foreach (Component c in prefab.GetComponents<Component>())
+            {
+                Debug.Log("P================================");
+                Debug.Log("Name: " + c.name + " Type: " + c.GetType().ToString());
+                Debug.Log("================================P");
+            }*/
 
             characterMotor.mass = 250;
             characterDirection.turnSpeed = 320;
@@ -78,10 +100,19 @@ namespace HANDY
             characterBody.preferredPodPrefab = Resources.Load<GameObject>("prefabs/networkedobjects/robocratepod");
             characterBody.baseDamage = 14;
             characterBody.levelDamage = 2.4f;
+            characterBody.baseMoveSpeed = 7;
             characterBody.baseMaxHealth = 300;
             characterBody.levelMaxHealth = 80;
             characterBody.baseNameToken = "HAND_CLONE_NAME_TOKEN";
             characterBody.subtitleNameToken = "New Servos";
+
+            CharacterDeathBehavior characterDeathBehavior = HANDDrone.GetComponent<CharacterDeathBehavior>();
+            characterDeathBehavior.enabled = false;
+
+            CharacterDeathBehavior healerDeathBehavior = HANDHealingDrone.GetComponent<CharacterDeathBehavior>();
+            healerDeathBehavior.enabled = false;
+
+            dronecharacterBody.baseNameToken = "HANDDRONE_CLONE_NAME_TOKEN";
 
             characterBody.bodyFlags = CharacterBody.BodyFlags.ImmuneToExecutes;
             characterBody.bodyFlags = CharacterBody.BodyFlags.SprintAnyDirection;
@@ -164,7 +195,7 @@ namespace HANDY
             //Secondary
             Secondary.noSprint = false;
             Secondary.canceledFromSprinting = false;
-            Secondary.baseRechargeInterval = 5;
+            Secondary.baseRechargeInterval = 10;
             Secondary.baseMaxStock = 3;
             Secondary.rechargeStock = 1;
             Secondary.requiredStock = 1;
@@ -173,8 +204,8 @@ namespace HANDY
             Secondary.mustKeyPress = false;
             Secondary.isBullets = false;
             Secondary.shootDelay = 0.08f;
-            Secondary.skillNameToken = ">:]";
-            Secondary.skillDescriptionToken = ">:]";
+            Secondary.skillNameToken = "HAND_SECONDARY_NAME";
+            Secondary.skillDescriptionToken = "HAND_SECONDARY_DESCRIPTION";
             Secondary.activationState = new EntityStates.SerializableEntityStateType(typeof(POWERSAVER));
 
             //Utility 
@@ -246,49 +277,52 @@ namespace HANDY
         {
             if (damageReport.victimBody.baseNameToken != "JELLYFISH_BODY_NAME")
             {
-                if (damageReport.victimBody.baseNameToken != "DRONE_GUNNER_BODY_NAME")
+                if (damageReport.victimBody.baseNameToken != "HANDDRONE_CLONE_NAME_TOKEN")
                 {
-                    if (damageReport.victimBody.baseNameToken != "DRONE_HEALING_BODY_NAME")
+                    if (damageReport.victimBody.baseNameToken != "DRONE_GUNNER_BODY_NAME")
                     {
-                        if (damageReport.attackerBody.baseNameToken == "HAND_CLONE_NAME_TOKEN" && damageReport.attacker.GetComponent<HANDOverclockController>().overclockOn)
+                        if (damageReport.victimBody.baseNameToken != "DRONE_HEALING_BODY_NAME")
                         {
-                            damageReport.attacker.GetComponent<HANDOverclockController>().AddDurationOnHit();
-                            damageReport.attackerBody.healthComponent.Heal((damageReport.damageDealt / 15) * 100, default);
-                            CharacterBody component = damageReport.attackerBody;
-                            Debug.Log("characterbody component worked");
-                            GameObject gameObject = MasterCatalog.FindMasterPrefab("Drone1Master");
-                            Debug.Log("finding masterprefab worked");
-                            GameObject bodyPrefab = BodyCatalog.FindBodyPrefab("Drone1Body");
-                            Debug.Log("finding body worked");
-                            var master = damageReport.attackerMaster;
-                            Debug.Log("finding attackermaster worked");
-                            GameObject gameObject2 = UnityEngine.Object.Instantiate(gameObject, component.transform.position, component.transform.rotation);
-                            Debug.Log("Instantiate worked");
-                            CharacterMaster component2 = gameObject2.GetComponent<CharacterMaster>();
-
-                            component2.gameObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = 120;
-
-                            component2.teamIndex = TeamComponent.GetObjectTeam(component.gameObject);
-                            AIOwnership component4 = gameObject2.GetComponent<AIOwnership>();
-                            BaseAI component5 = gameObject2.GetComponent<BaseAI>();
-                            if (component4)
+                            if (damageReport.attackerBody.baseNameToken == "HAND_CLONE_NAME_TOKEN" && damageReport.attacker.GetComponent<HANDOverclockController>().overclockOn)
                             {
-                                component4.ownerMaster = master;
-                            }
-                            if (component5)
-                            {
-                                component5.leader.gameObject = master.gameObject;
-                                component5.isHealer = false;
-                                component5.fullVision = true;
-                            }
-                            Inventory component6 = gameObject2.GetComponent<Inventory>();
-                            Debug.Log("getting inv worked");
-                            component6.CopyItemsFrom(master.inventory);
-                            Debug.Log("copying worked");
-                            NetworkServer.Spawn(gameObject2);
-                            Debug.Log("network spawning worked");
-                            CharacterBody body = component2.SpawnBody(bodyPrefab, component.transform.position + Vector3.up, component.transform.rotation);
-                            Debug.Log("spawning body worked");
+                                damageReport.attacker.GetComponent<HANDOverclockController>().AddDurationOnHit();
+                                damageReport.attackerBody.healthComponent.Heal((damageReport.damageDealt / 15) * 100, default);
+                                CharacterBody component = damageReport.attackerBody;
+                                Debug.Log("characterbody component worked");
+                                GameObject gameObject = MasterCatalog.FindMasterPrefab("Drone1Master");
+                                Debug.Log("finding masterprefab worked");
+                                GameObject bodyPrefab = HANDDrone;
+                                Debug.Log("finding body worked");
+                                var master = damageReport.attackerMaster;
+                                Debug.Log("finding attackermaster worked");
+                                GameObject gameObject2 = UnityEngine.Object.Instantiate(gameObject, component.transform.position, component.transform.rotation);
+                                Debug.Log("Instantiate worked");
+                                CharacterMaster component2 = gameObject2.GetComponent<CharacterMaster>();
+
+                                component2.gameObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = 60;
+
+                                component2.teamIndex = TeamComponent.GetObjectTeam(component.gameObject);
+                                AIOwnership component4 = gameObject2.GetComponent<AIOwnership>();
+                                BaseAI component5 = gameObject2.GetComponent<BaseAI>();
+                                if (component4)
+                                {
+                                    component4.ownerMaster = master;
+                                }
+                                if (component5)
+                                {
+                                    component5.leader.gameObject = master.gameObject;
+                                    component5.isHealer = false;
+                                    component5.fullVision = true;
+                                }
+                                Inventory component6 = gameObject2.GetComponent<Inventory>();
+                                Debug.Log("getting inv worked");
+                                component6.CopyItemsFrom(master.inventory);
+                                Debug.Log("copying worked");
+                                NetworkServer.Spawn(gameObject2);
+                                Debug.Log("network spawning worked");
+                                CharacterBody body = component2.SpawnBody(bodyPrefab, component.transform.position + Vector3.up, component.transform.rotation);
+                                Debug.Log("spawning body worked");
+                            };
                         };
                     };
                 };

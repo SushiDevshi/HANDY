@@ -11,7 +11,7 @@ public class HANDOverclockController : MonoBehaviour
     public float stunChance = 30f;
     public float attackSpeedBonus = 0.3f;
     public float maxDuration = 3f;
-    public float durationOnHit = 0.32f;
+    public float durationOnHit = 3f;
     public float healPercentOnHit = 0.06f;
     public float overclockTargetArmor = 30f;
     private CharacterBody characterBody;
