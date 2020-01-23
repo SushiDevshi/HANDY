@@ -20,7 +20,13 @@ namespace HANDY.Weapon
         private Animator modelAnimator;
         private float duration;
         private bool hasSwung;
+        /*private Vector3 storedVelocity;
+        private float hitPauseTimer = 0f;
+        private float hitPauseDuration = 0.1f;
+        private bool enteredHitPause = false;
+        private bool exitedHitPause = false;*/
 
+        public static float shorthopVelocityFromHit;
         public override void OnEnter()
         {
             base.OnEnter();
@@ -34,10 +40,12 @@ namespace HANDY.Weapon
             this.attack.damage = damageCoefficient * this.damageStat;
             this.attack.hitEffectPrefab = this.hitEffectPrefab;
             this.attack.isCrit = RollCrit();
-            if (base.GetComponent<HANDOverclockController>().overclockOn)
+
+            if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(HANDOverclockController.stunChance, base.characterBody.master))
             {
                 this.attack.damageType = DamageType.Stun1s;
             }
+
             if (modelTransform)
             {
                 this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
@@ -96,7 +104,6 @@ namespace HANDY.Weapon
             return InterruptPriority.PrioritySkill;
         }
 
-        // Token: 0x06002FF7 RID: 12279 RVA: 0x000CDA7C File Offset: 0x000CBC7C
         private static void PullEnemies(Vector3 position, Vector3 direction, float coneAngle, float maxDistance, float force, TeamIndex excludedTeam)
         {
             float num = Mathf.Cos(coneAngle * 0.5f * 0.017453292f);

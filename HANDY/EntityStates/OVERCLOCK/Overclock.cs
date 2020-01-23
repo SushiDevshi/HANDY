@@ -16,6 +16,7 @@ namespace HANDY.HAND
             if (NetworkServer.active)
             {
                 base.GetComponent<HANDOverclockController>().EnableOverclock();
+
                 BlastAttack blastattack = new BlastAttack();
                 blastattack.position = base.transform.position;
                 blastattack.radius = 12;

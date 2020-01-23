@@ -35,10 +35,12 @@ namespace HANDY.Weapon
             this.attack.damage = this.impactDamageCoefficient * this.damageStat;
             this.attack.hitEffectPrefab = this.hitEffectPrefab;
             this.attack.isCrit = RollCrit();
-            if (base.GetComponent<HANDOverclockController>().overclockOn)
+
+            if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(HANDOverclockController.stunChance, base.characterBody.master))
             {
                 this.attack.damageType = DamageType.Stun1s;
             }
+
             if (modelTransform)
             {
                 this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");

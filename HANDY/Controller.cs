@@ -8,9 +8,9 @@ public class HANDOverclockController : MonoBehaviour
 
     public bool rechargingOnHit = false;
     public bool overclockOn = false;
-    public float stunChance = 30f;
+    public static float stunChance = 30f;
     public float attackSpeedBonus = 0.3f;
-    public float maxDuration = 3f;
+    public float maxDuration = 60f;
     public float durationOnHit = 3f;
     public float healPercentOnHit = 0.06f;
     public float overclockTargetArmor = 30f;
@@ -88,7 +88,7 @@ public class HANDOverclockController : MonoBehaviour
         this.rechargingOnHitDuration = 0.5f * (HURT.baseDuration / (this.characterBody.attackSpeed + this.attackSpeedBonus));
         this.duration += this.durationOnHit;
         bool flag = this.duration > this.maxDuration;
-        if (flag)
+        if (this.duration > this.maxDuration)
         {
             this.duration = this.maxDuration;
         }

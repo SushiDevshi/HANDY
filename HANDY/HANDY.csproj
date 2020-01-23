@@ -336,8 +336,8 @@
     <Compile Include="Controller.cs" />
     <Compile Include="EntityStates\BigSlam\CHARGEBIGSLAM.cs" />
     <Compile Include="EntityStates\BigSlam\BIGSLAM.cs" />
-    <Compile Include="EntityStates\Slam\ChargeSlam.cs" />
-    <Compile Include="EntityStates\Slam\Slam.cs" />
+    <Compile Include="EntityStates\Slam\CHARGESLAM.cs" />
+    <Compile Include="EntityStates\Slam\SLAM.cs" />
     <Compile Include="EntityStates\HURT\HURT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -5,7 +5,6 @@ namespace HANDY
 {
     public static class Helpers
     {
-        //rein can go fuck himself.
         #region Catalogs
         /// <summary>
         /// Adds a GameObject to the BodyCatalog and returns true

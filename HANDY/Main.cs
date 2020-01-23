@@ -41,8 +41,10 @@ namespace HANDY
 
             var display = HAND.GetComponent<ModelLocator>().modelTransform.gameObject;
 
-            CharacterBody characterBody = HAND.GetComponent<CharacterBody>();
+            CharacterBody healingdronecharacterBody = HANDDrone.GetComponent<CharacterBody>();
             CharacterBody dronecharacterBody = HANDDrone.GetComponent<CharacterBody>();
+
+            CharacterBody characterBody = HAND.GetComponent<CharacterBody>();
             SkillLocator skillLocator = HAND.GetComponent<SkillLocator>();
             CharacterMotor characterMotor = HAND.GetComponent<CharacterMotor>();
             CharacterDirection characterDirection = HAND.GetComponent<CharacterDirection>();
@@ -113,6 +115,7 @@ namespace HANDY
             healerDeathBehavior.enabled = false;
 
             dronecharacterBody.baseNameToken = "HANDDRONE_CLONE_NAME_TOKEN";
+            healingdronecharacterBody.baseNameToken = "HANDDRONEHEALER_CLONE_NAME_TOKEN";
 
             characterBody.bodyFlags = CharacterBody.BodyFlags.ImmuneToExecutes;
             characterBody.bodyFlags = CharacterBody.BodyFlags.SprintAnyDirection;
@@ -155,8 +158,6 @@ namespace HANDY
             LoadoutAPI.AddSkill(typeof(BIGSLAM));
             LoadoutAPI.AddSkill(typeof(OVERCLOCK));
             LoadoutAPI.AddSkill(typeof(POWERSAVER));
-
-
 
             SkillFamily primaryskillFamily = skillLocator.primary.skillFamily;
             SkillFamily secondaryskillFamily = skillLocator.secondary.skillFamily;
@@ -328,7 +329,7 @@ namespace HANDY
                 };
             };
         }
-       
+
         private class HANDDisplayAnimation : MonoBehaviour
         {
 
