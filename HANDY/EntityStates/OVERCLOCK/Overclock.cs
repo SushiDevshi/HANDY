@@ -13,23 +13,23 @@ namespace HANDY.HAND
         public override void OnEnter()
         {
             base.OnEnter();
-            if (NetworkServer.active)
+            if (NetworkServer.active && base.isAuthority)
             {
                 base.GetComponent<HANDOverclockController>().EnableOverclock();
-
-                BlastAttack blastattack = new BlastAttack();
-                blastattack.position = base.transform.position;
-                blastattack.radius = 12;
-                blastattack.damageType = DamageType.Stun1s;
-                blastattack.baseForce = 0;
-                blastattack.canHurtAttacker = false;
-                blastattack.damageColorIndex = DamageColorIndex.Default;
-                blastattack.falloffModel = BlastAttack.FalloffModel.None;
-                blastattack.attacker = base.gameObject;
-                blastattack.crit = RollCrit();
-
-                blastattack.Fire();
-
+                new BlastAttack
+                {
+                    attacker = base.gameObject,
+                    inflictor = base.gameObject,
+                    teamIndex = TeamComponent.GetObjectTeam(base.gameObject),
+                    baseDamage = this.damageStat * 2,
+                    baseForce = 5,
+                    position = base.transform.position,
+                    radius = 20,
+                    procCoefficient = 0f,
+                    falloffModel = BlastAttack.FalloffModel.None,
+                    damageType = DamageType.Stun1s,
+                    crit = RollCrit()
+                }.Fire();
             }
         }
         public override void FixedUpdate()

@@ -1,5 +1,6 @@
 ﻿using EntityStates;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace HANDY.Weapon
 {
@@ -11,15 +12,18 @@ namespace HANDY.Weapon
         public override void OnEnter()
         {
             base.OnEnter();
-            this.duration = this.baseDuration / this.attackSpeedStat;
-            this.modelAnimator = base.GetModelAnimator();
-            if (this.modelAnimator)
+            if (NetworkServer.active && base.isAuthority)
             {
-                base.PlayAnimation("Gesture", "ChargeSlam", "ChargeSlam.playbackRate", this.duration);
-            }
-            if (base.characterBody)
-            {
-                base.characterBody.SetAimTimer(4f);
+                this.duration = this.baseDuration / this.attackSpeedStat;
+                this.modelAnimator = base.GetModelAnimator();
+                if (this.modelAnimator)
+                {
+                    base.PlayAnimation("Gesture", "ChargeSlam", "ChargeSlam.playbackRate", this.duration);
+                }
+                if (base.characterBody)
+                {
+                    base.characterBody.SetAimTimer(4f);
+                }
             }
         }
         public override void FixedUpdate()
