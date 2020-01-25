@@ -1,6 +1,8 @@
 ﻿using HANDY.Weapon;
 using RoR2;
+using RoR2.Networking;
 using UnityEngine;
+using UnityEngine.Networking;
 
 // Token: 0x02000002 RID: 2
 public class HANDOverclockController : MonoBehaviour
@@ -10,7 +12,7 @@ public class HANDOverclockController : MonoBehaviour
     public bool overclockOn = false;
     public static float stunChance = 30f;
     public float attackSpeedBonus = 0.3f;
-    public float maxDuration = 60f;
+    public float maxDuration = 3;
     public float durationOnHit = 3f;
     public float healPercentOnHit = 0.06f;
     public float overclockTargetArmor = 30f;
@@ -53,44 +55,54 @@ public class HANDOverclockController : MonoBehaviour
     }
     public void EnableOverclock()
     {
-        if (!this.overclockOn)
+        if (NetworkServer.active)
         {
-            this.overclockOn = true;
-            this.characterBody.isChampion = true;
-            this.setStateOnHurt.canBeFrozen = false;
-            this.characterBody.baseDamage = this.characterBody.baseDamage + 1;
-            this.characterBody.baseMoveSpeed = this.characterBody.baseMoveSpeed + 2;
-            this.characterBody.baseArmor = this.characterBody.baseArmor + 3;
-            this.characterBody.baseCrit = this.characterBody.baseCrit + 2;
-            Util.PlaySound("Play_MULT_shift_start", base.gameObject);
+            if (!this.overclockOn)
+            {
+                this.overclockOn = true;
+                this.characterBody.isChampion = true;
+                this.setStateOnHurt.canBeFrozen = false;
+                this.characterBody.baseDamage = this.characterBody.baseDamage + 1;
+                this.characterBody.baseMoveSpeed = this.characterBody.baseMoveSpeed + 2;
+                this.characterBody.baseArmor = this.characterBody.baseArmor + 3;
+                this.characterBody.baseCrit = this.characterBody.baseCrit + 2;
+                Util.PlaySound("Play_MULT_shift_start", base.gameObject);
+            }
+            this.characterBody.AddTimedBuff(BuffIndex.HiddenInvincibility, 1.25f);
+            this.duration = this.maxDuration;
         }
-        this.characterBody.AddTimedBuff(BuffIndex.HiddenInvincibility, 1.25f);
-        this.duration = this.maxDuration;
     }
     public void DisableOverclock()
     {
         if (this.overclockOn)
         {
-            this.overclockOn = false;
-            this.rechargingOnHit = false;
-            Util.PlaySound("Play_MULT_shift_end", base.gameObject);
-            this.setStateOnHurt.canBeFrozen = true;
-            this.characterBody.isChampion = false;
-            this.characterBody.baseDamage = this.characterBody.baseDamage - 1;
-            this.characterBody.baseMoveSpeed = this.characterBody.baseMoveSpeed - 2;
-            this.characterBody.baseArmor = this.characterBody.baseArmor - 3;
-            this.characterBody.baseCrit = this.characterBody.baseCrit - 2;
+            if (NetworkServer.active)
+            {
+
+                this.overclockOn = false;
+                this.rechargingOnHit = false;
+                Util.PlaySound("Play_MULT_shift_end", base.gameObject);
+                this.setStateOnHurt.canBeFrozen = true;
+                this.characterBody.isChampion = false;
+                this.characterBody.baseDamage = this.characterBody.baseDamage - 1;
+                this.characterBody.baseMoveSpeed = this.characterBody.baseMoveSpeed - 2;
+                this.characterBody.baseArmor = this.characterBody.baseArmor - 3;
+                this.characterBody.baseCrit = this.characterBody.baseCrit - 2;
+            }
         }
     }
     public void AddDurationOnHit()
     {
-        this.rechargingOnHit = true;
-        this.rechargingOnHitDuration = 0.5f * (HURT.baseDuration / (this.characterBody.attackSpeed + this.attackSpeedBonus));
-        this.duration += this.durationOnHit;
-        bool flag = this.duration > this.maxDuration;
-        if (this.duration > this.maxDuration)
+        if (NetworkServer.active)
         {
-            this.duration = this.maxDuration;
+            this.rechargingOnHit = true;
+            this.rechargingOnHitDuration = 0.5f * (HURT.baseDuration / (this.characterBody.attackSpeed + this.attackSpeedBonus));
+            this.duration += this.durationOnHit;
+            bool flag = this.duration > this.maxDuration;
+            if (this.duration > this.maxDuration)
+            {
+                this.duration = this.maxDuration;
+            }
         }
     }
 }

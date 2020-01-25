@@ -17,46 +17,7 @@ namespace HANDY.Weapon
         {
             base.OnEnter();
             this.duration = POWERSAVER.baseDuration / this.attackSpeedStat;
-            CharacterBody component = base.characterBody;
-
-            Debug.Log("characterbody component worked");
-            GameObject gameObject = MasterCatalog.FindMasterPrefab("Drone2Master");
-            Debug.Log("finding masterprefab worked");
-            GameObject bodyPrefab = HANDY.HANDHealingDrone;
-            Debug.Log("finding body worked");
-            var master = component.master;
-            Debug.Log("finding attackermaster worked");
-            GameObject gameObject2 = UnityEngine.Object.Instantiate(gameObject, component.transform.position, component.transform.rotation);
-            Debug.Log("Instantiate worked");
-            CharacterMaster component2 = gameObject2.GetComponent<CharacterMaster>();
-            component2.gameObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = 15f;
-
-            if (base.GetComponent<HANDOverclockController>().overclockOn)
-            {
-                component2.gameObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = 25f;
-            }
-
-            component2.teamIndex = TeamComponent.GetObjectTeam(component.gameObject);
-            AIOwnership component4 = gameObject2.GetComponent<AIOwnership>();
-            BaseAI component5 = gameObject2.GetComponent<BaseAI>();
-            if (component4)
-            {
-                component4.ownerMaster = master;
-            }
-            if (component5)
-            {
-                component5.leader.gameObject = master.gameObject;
-                component5.isHealer = true;
-                component5.fullVision = true;
-            }
-            Inventory component6 = gameObject2.GetComponent<Inventory>();
-            Debug.Log("getting inv worked");
-            component6.CopyItemsFrom(master.inventory);
-            Debug.Log("copying worked");
-            NetworkServer.Spawn(gameObject2);
-            Debug.Log("network spawning worked");
-            CharacterBody body = component2.SpawnBody(bodyPrefab, base.transform.position + Vector3.up, base.transform.rotation);
-            Debug.Log("spawning body worked");
+            HANDY.SendNetworkMessage(base.characterBody.netId, 2);
         }
         public override void FixedUpdate()
         {

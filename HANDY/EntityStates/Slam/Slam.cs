@@ -15,7 +15,7 @@ namespace HANDY.Weapon
         public float earthquakeDamageCoefficient = 4f;
         public float forceMagnitude = 32f;
         public float radius = 6f;//sunder
-        public GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/impacteffects/beetleguardgroundslam");//;
+        //public GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/impacteffects/beetleguardgroundslam");//;
         public GameObject projectilePrefab = Resources.Load<GameObject>("prefabs/projectiles/sunder");
         private Transform hammerChildTransform;
         private OverlapAttack attack;
@@ -25,38 +25,40 @@ namespace HANDY.Weapon
         public override void OnEnter()
         {
             base.OnEnter();
-            this.duration = this.baseDuration / base.attackSpeedStat;
-            this.modelAnimator = base.GetModelAnimator();
-            Transform modelTransform = base.GetModelTransform();
-            this.attack = new OverlapAttack();
-            this.attack.attacker = base.gameObject;
-            this.attack.inflictor = base.gameObject;
-            this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
-            this.attack.damage = this.impactDamageCoefficient * this.damageStat;
-            this.attack.hitEffectPrefab = this.hitEffectPrefab;
-            this.attack.isCrit = RollCrit();
-
-            if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(HANDOverclockController.stunChance, base.characterBody.master))
+            if (NetworkServer.active && base.isAuthority)
             {
-                this.attack.damageType = DamageType.Stun1s;
-            }
+                this.duration = this.baseDuration / base.attackSpeedStat;
+                this.modelAnimator = base.GetModelAnimator();
+                Transform modelTransform = base.GetModelTransform();
+                this.attack = new OverlapAttack();
+                this.attack.attacker = base.gameObject;
+                this.attack.inflictor = base.gameObject;
+                this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
+                this.attack.damage = this.impactDamageCoefficient * this.damageStat;
+                this.attack.isCrit = RollCrit();
 
-            if (modelTransform)
-            {
-                this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
-                ChildLocator component = modelTransform.GetComponent<ChildLocator>();
-                if (component)
+                if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(HANDOverclockController.stunChance, base.characterBody.master))
                 {
-                    this.hammerChildTransform = component.FindChild("SwingCenter");
+                    this.attack.damageType = DamageType.Stun1s;
                 }
-            }
-            if (this.modelAnimator)
-            {
-                base.PlayAnimation("Gesture", "Slam", "Slam.playbackRate", this.duration);
-            }
-            if (base.characterBody)
-            {
-                base.characterBody.SetAimTimer(2f);
+
+                if (modelTransform)
+                {
+                    this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
+                    ChildLocator component = modelTransform.GetComponent<ChildLocator>();
+                    if (component)
+                    {
+                        this.hammerChildTransform = component.FindChild("SwingCenter");
+                    }
+                }
+                if (this.modelAnimator)
+                {
+                    base.PlayAnimation("Gesture", "Slam", "Slam.playbackRate", this.duration);
+                }
+                if (base.characterBody)
+                {
+                    base.characterBody.SetAimTimer(2f);
+                }
             }
         }
         public override void FixedUpdate()

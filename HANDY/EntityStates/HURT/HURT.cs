@@ -20,13 +20,6 @@ namespace HANDY.Weapon
         private Animator modelAnimator;
         private float duration;
         private bool hasSwung;
-        /*private Vector3 storedVelocity;
-        private float hitPauseTimer = 0f;
-        private float hitPauseDuration = 0.1f;
-        private bool enteredHitPause = false;
-        private bool exitedHitPause = false;*/
-
-        public static float shorthopVelocityFromHit;
         public override void OnEnter()
         {
             base.OnEnter();
@@ -46,7 +39,7 @@ namespace HANDY.Weapon
                 this.attack.damageType = DamageType.Stun1s;
             }
 
-            if (modelTransform)
+            if (modelTransform && base.isAuthority && NetworkServer.active)
             {
                 this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
                 ChildLocator component = modelTransform.GetComponent<ChildLocator>();
@@ -55,7 +48,7 @@ namespace HANDY.Weapon
                     this.hammerChildTransform = component.FindChild("SwingCenter");
                 }
             }
-            if (this.modelAnimator)
+            if (this.modelAnimator && base.isAuthority && NetworkServer.active)
             {
                 int layerIndex = this.modelAnimator.GetLayerIndex("Gesture");
                 if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing3") || this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing1"))
@@ -79,7 +72,7 @@ namespace HANDY.Weapon
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-            if (NetworkServer.active && this.modelAnimator && this.modelAnimator.GetFloat("Hammer.hitBoxActive") > 0.5f)
+            if (base.isAuthority && NetworkServer.active && this.modelAnimator && this.modelAnimator.GetFloat("Hammer.hitBoxActive") > 0.5f)
             {
                 if (!this.hasSwung)
                 {
