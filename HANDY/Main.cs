@@ -43,6 +43,7 @@ namespace HANDY
             DontDestroyOnLoad(HANDDrone);
             DontDestroyOnLoad(HANDHealingDrone);
 
+            GlobalEventManager.onCharacterDeathGlobal += GlobalEventManagerOnOnCharacterDeath;
 
             var display = HAND.GetComponent<ModelLocator>().modelTransform.gameObject;
 
@@ -320,41 +321,7 @@ namespace HANDY
                                                                                 damageReport.attacker.GetComponent<HANDOverclockController>().AddDurationOnHit();
                                                                                 damageReport.attackerBody.healthComponent.Heal((damageReport.damageDealt / 15) * 100, default);
                                                                                 HANDY.SendNetworkMessage(damageReport.attackerBody.netId, 1);
-                                                                                /*CharacterBody component = damageReport.attackerBody;
-                                                                                Debug.Log("characterbody component worked");
-                                                                                GameObject gameObject = MasterCatalog.FindMasterPrefab("Drone1Master");
-                                                                                Debug.Log("finding masterprefab worked");
-                                                                                GameObject bodyPrefab = HANDDrone;
-                                                                                Debug.Log("finding body worked");
-                                                                                var master = damageReport.attackerMaster;
-                                                                                Debug.Log("finding attackermaster worked");
-                                                                                GameObject gameObject2 = UnityEngine.Object.Instantiate(gameObject, component.transform.position, component.transform.rotation);
-                                                                                Debug.Log("Instantiate worked");
-                                                                                CharacterMaster component2 = gameObject2.GetComponent<CharacterMaster>();
-
-                                                                                component2.gameObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = 60;
-
-                                                                                component2.teamIndex = TeamComponent.GetObjectTeam(component.gameObject);
-                                                                                AIOwnership component4 = gameObject2.GetComponent<AIOwnership>();
-                                                                                BaseAI component5 = gameObject2.GetComponent<BaseAI>();
-                                                                                if (component4)
-                                                                                {
-                                                                                    component4.ownerMaster = master;
-                                                                                }
-                                                                                if (component5)
-                                                                                {
-                                                                                    component5.leader.gameObject = master.gameObject;
-                                                                                    component5.isHealer = false;
-                                                                                    component5.fullVision = true;
-                                                                                }
-                                                                                Inventory component6 = gameObject2.GetComponent<Inventory>();
-                                                                                Debug.Log("getting inv worked");
-                                                                                component6.CopyItemsFrom(master.inventory);
-                                                                                Debug.Log("copying worked");
-                                                                                NetworkServer.Spawn(gameObject2);
-                                                                                Debug.Log("network spawning worked");
-                                                                                CharacterBody body = component2.SpawnBody(bodyPrefab, component.transform.position + Vector3.up, component.transform.rotation);
-                                                                                Debug.Log("spawning body worked");*/
+                                                                               
                                                                             };
                                                                         };
                                                                     };
