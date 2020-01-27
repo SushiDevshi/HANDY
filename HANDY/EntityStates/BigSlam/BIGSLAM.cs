@@ -17,7 +17,7 @@ namespace HANDY.Weapon
         public GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/impacteffects/beetleguardgroundslam");//;
         public GameObject projectilePrefab = Resources.Load<GameObject>("prefabs/projectiles/sunder");
         private Transform hammerChildTransform;
-        private OverlappingAttack attack;
+        private OverlapAttack attack;
         private Animator modelAnimator;
         private float duration;
         private bool hasSwung;
@@ -27,7 +27,7 @@ namespace HANDY.Weapon
             this.duration = this.baseDuration / base.attackSpeedStat;
             this.modelAnimator = base.GetModelAnimator();
             Transform modelTransform = base.GetModelTransform();
-            this.attack = new OverlappingAttack();
+            this.attack = new OverlapAttack();
             this.attack.attacker = base.gameObject;
             this.attack.inflictor = base.gameObject;
             this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
