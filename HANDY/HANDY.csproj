@@ -329,6 +329,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
     <Compile Include="EntityStates\OVERCLOCK\OVERCLOCK.cs" />
     <Compile Include="EntityStates\POWERSAVER\POWERSAVER.cs" />
     <Compile Include="Helpers.cs" />

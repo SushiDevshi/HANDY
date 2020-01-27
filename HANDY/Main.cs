@@ -30,9 +30,10 @@ namespace HANDY
     {
         public static GameObject HANDDrone { get; private set; }
         public static GameObject HANDHealingDrone { get; private set; }
+        public static GameObject HAND { get; private set; }
         public void Awake()
         {
-            GameObject HAND = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("HAND_CLONE", true);
+            HAND = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("HAND_CLONE", true);
             HANDDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone1Body").InstantiateClone("HAND_DRONE_CLONE", true);
             HANDHealingDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone2Body").InstantiateClone("HAND_DRONEHEALER_CLONE", true);
 
@@ -40,8 +41,8 @@ namespace HANDY
             RegisterNewBody(HANDDrone);
             RegisterNewBody(HANDHealingDrone);
 
-            DontDestroyOnLoad(HANDDrone);
-            DontDestroyOnLoad(HANDHealingDrone);
+            DontDestroyOnLoad(HANDDrone.gameObject);
+            DontDestroyOnLoad(HANDHealingDrone.gameObject);
 
             GlobalEventManager.onCharacterDeathGlobal += GlobalEventManagerOnOnCharacterDeath;
 
@@ -81,7 +82,7 @@ namespace HANDY
             R2API.AssetPlus.Languages.AddToken("HAND_PRIMARY_NAME", "HURT");
             R2API.AssetPlus.Languages.AddToken("HAND_PRIMARY_DESCRIPTION", "APPLY FORCE TO ALL COMBATANTS FOR <color=#E5C962>550% DAMAGE.</color>");
             R2API.AssetPlus.Languages.AddToken("HAND_SECONDARY_NAME", "DRONE");
-            R2API.AssetPlus.Languages.AddToken("HAND_SECONDARY_DESCRIPTION", "RELEASE A HEALING DRONE <style=cIsUtility>LIVES FOR 25 SECONDS</style>");
+            R2API.AssetPlus.Languages.AddToken("HAND_SECONDARY_DESCRIPTION", "RELEASE A HEALING DRONE THAT <style=cIsUtility>LIVES FOR 25 SECONDS</style>");
             R2API.AssetPlus.Languages.AddToken("HAND_UTILITY_NAME", "OVERCLOCK");
             R2API.AssetPlus.Languages.AddToken("HAND_UTILITY_DESCRIPTION", "INCREASE <color=#E5C962>ATTACK SPEED AND DAMAGE, AND SUMMON TEMPORARY DRONES ON COMBATANT DEATH. </color> ALL ATTACKS <color=#9CE562>HEAL 10% OF DAMAGE DONE</color>. <color=#95CDE5>INCREASE DURATION BY KILLING COMBATANTS.</color>");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_NAME", "FORCED_REASSEMBLY");
@@ -133,7 +134,7 @@ namespace HANDY
             hurtState.canBeStunned = false;
             hurtState.hitThreshold = 5f;
 
-            characterModel.modelBaseTransform.transform.localScale = characterModel.modelBaseTransform.transform.localScale * 2;
+            characterModel.modelBaseTransform.transform.localScale = characterModel.modelBaseTransform.transform.localScale * 1.2f;
 
             int i = 0;
             EntityStateMachine[] esmr = new EntityStateMachine[2];
@@ -320,8 +321,42 @@ namespace HANDY
                                                                             {
                                                                                 damageReport.attacker.GetComponent<HANDOverclockController>().AddDurationOnHit();
                                                                                 damageReport.attackerBody.healthComponent.Heal((damageReport.damageDealt / 15) * 100, default);
-                                                                                HANDY.SendNetworkMessage(damageReport.attackerBody.netId, 1);
-                                                                               
+                                                                                CharacterBody component = damageReport.attackerBody;
+                                                                                //Debug.Log("characterbody component worked");
+                                                                                GameObject gameObject = MasterCatalog.FindMasterPrefab("Drone1Master");
+                                                                                //Debug.Log("finding masterprefab worked");
+                                                                                GameObject bodyPrefab = BodyCatalog.FindBodyPrefab("Drone1Body");
+                                                                                //Debug.Log("finding body worked");
+                                                                                var master = damageReport.attackerMaster;
+                                                                                //Debug.Log("finding attackermaster worked");
+                                                                                GameObject gameObject2 = UnityEngine.Object.Instantiate(gameObject, component.transform.position, component.transform.rotation);
+                                                                                //Debug.Log("Instantiate worked");
+                                                                                CharacterMaster component2 = gameObject2.GetComponent<CharacterMaster>();
+
+                                                                                component2.gameObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = 45f;
+
+                                                                                component2.teamIndex = TeamComponent.GetObjectTeam(component.gameObject);
+                                                                                AIOwnership component4 = gameObject2.GetComponent<AIOwnership>();
+                                                                                BaseAI component5 = gameObject2.GetComponent<BaseAI>();
+                                                                                if (component4)
+                                                                                {
+                                                                                    component4.ownerMaster = master;
+                                                                                }
+                                                                                if (component5)
+                                                                                {
+                                                                                    component5.leader.gameObject = master.gameObject;
+                                                                                    component5.isHealer = false;
+                                                                                    component5.fullVision = true;
+                                                                                }
+                                                                                Inventory component6 = gameObject2.GetComponent<Inventory>();
+                                                                                //Debug.Log("getting inv worked");
+                                                                                component6.CopyItemsFrom(master.inventory);
+                                                                                //Debug.Log("copying worked");
+                                                                                NetworkServer.Spawn(gameObject2);
+                                                                                //Debug.Log("network spawning worked");
+                                                                                CharacterBody body = component2.SpawnBody(bodyPrefab, component.transform.position + Vector3.up, component.transform.rotation);
+                                                                                //Debug.Log("spawning body worked");
+
                                                                             };
                                                                         };
                                                                     };
@@ -339,117 +374,6 @@ namespace HANDY
                     };
                 };
             };
-        }
-
-        
-     public const Int16 HandleId = 265;
-
-        public class MyMessage : MessageBase
-        {
-            public NetworkInstanceId objectID;
-            public int summonType;
-
-            public override void Serialize(NetworkWriter writer)
-            {
-                writer.Write(objectID);
-                writer.Write(summonType);
-            }
-
-            public override void Deserialize(NetworkReader reader)
-            {
-                objectID = reader.ReadNetworkId();
-                summonType = reader.ReadInt32();
-            }
-        }
-
-        public static void SendNetworkMessage(NetworkInstanceId myObjectID, int summoningType)
-        {
-            NetworkServer.SendToAll(HandleId, new MyMessage
-            {
-                objectID = myObjectID,
-                summonType = summoningType
-            });
-        }
-
-        [RoR2.Networking.NetworkMessageHandler(msgType = HandleId, client = true)]
-        public static void HandleDropItem(NetworkMessage netMsg)
-        {
-            var MyMessage = netMsg.ReadMessage<MyMessage>();
-
-
-            if (NetworkServer.active)
-            {
-                CharacterBody characterBody = ClientScene.FindLocalObject(MyMessage.objectID).GetComponent<CharacterBody>();
-                CharacterMaster characterMaster;
-                if (characterBody)
-                {
-                    {
-                        if (MyMessage.summonType == 1) 
-                        {
-
-                            characterMaster = new MasterSummon
-                            {
-                                masterPrefab = MasterCatalog.FindMasterPrefab("Drone1Master"),
-                                position = characterBody.footPosition + characterBody.transform.up,
-                                rotation = characterBody.transform.rotation,
-                                summonerBodyObject = null,
-                                ignoreTeamMemberLimit = false,
-                                teamIndexOverride = TeamIndex.Neutral
-
-                            }.Perform();
-
-
-
-                            characterMaster.bodyPrefab = BodyCatalog.FindBodyPrefab("Drone1Body");
-                            characterMaster.Respawn(characterMaster.GetBody().footPosition + Vector3.up + Vector3.up, Quaternion.identity);
-
-                            characterMaster.inventory.CopyItemsFrom(characterBody.inventory);
-
-                            characterMaster.inventory.ResetItem(ItemIndex.AutoCastEquipment);
-                            characterMaster.inventory.ResetItem(ItemIndex.BeetleGland);
-                            characterMaster.inventory.ResetItem(ItemIndex.ExtraLife);
-                            characterMaster.inventory.ResetItem(ItemIndex.ExtraLifeConsumed);
-                            characterMaster.inventory.ResetItem(ItemIndex.FallBoots);
-                            characterMaster.inventory.ResetItem(ItemIndex.TonicAffliction);
-                            characterMaster.inventory.ResetItem(ItemIndex.ExplodeOnDeath);
-
-                            characterMaster.inventory.CopyEquipmentFrom(characterBody.inventory);
-
-                        }
-                        if (MyMessage.summonType == 2) 
-                        {
-
-                            characterMaster = new MasterSummon
-                            {
-                                masterPrefab = MasterCatalog.FindMasterPrefab("Drone2Master"),
-                                position = characterBody.footPosition + characterBody.transform.up,
-                                rotation = characterBody.transform.rotation,
-                                summonerBodyObject = null,
-                                ignoreTeamMemberLimit = false,
-                                teamIndexOverride = TeamIndex.Player
-
-                            }.Perform();
-
-
-
-                            characterMaster.bodyPrefab = BodyCatalog.FindBodyPrefab("Drone2Body");
-                            characterMaster.Respawn(characterMaster.GetBody().footPosition + Vector3.up + Vector3.up, Quaternion.identity);
-
-                            characterMaster.inventory.CopyItemsFrom(characterBody.inventory);
-                            characterMaster.inventory.ResetItem(ItemIndex.AutoCastEquipment);
-                            characterMaster.inventory.ResetItem(ItemIndex.BeetleGland);
-                            characterMaster.inventory.ResetItem(ItemIndex.ExtraLife);
-                            characterMaster.inventory.ResetItem(ItemIndex.ExtraLifeConsumed);
-                            characterMaster.inventory.ResetItem(ItemIndex.FallBoots);
-                            characterMaster.inventory.ResetItem(ItemIndex.TonicAffliction);
-                            characterMaster.inventory.ResetItem(ItemIndex.ExplodeOnDeath);
-
-                            characterMaster.inventory.CopyEquipmentFrom(characterBody.inventory);
-                        }
-                    }
-                }
-            }
-
         }
 
         private class HANDDisplayAnimation : MonoBehaviour
