@@ -16,7 +16,7 @@ namespace HANDY.Weapon
         public float radius = 12f;
         public GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");
         private Transform hammerChildTransform;
-        private OverlappingAttack attack;
+        private OverlapAttack attack;
         private Animator modelAnimator;
         private float duration;
         private bool hasSwung;
@@ -26,7 +26,7 @@ namespace HANDY.Weapon
             this.duration = HURT.baseDuration / this.attackSpeedStat;
             this.modelAnimator = base.GetModelAnimator();
             Transform modelTransform = base.GetModelTransform();
-            this.attack = new OverlappingAttack();
+            this.attack = new OverlapAttack();
             this.attack.attacker = base.gameObject;
             this.attack.inflictor = base.gameObject;
             this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
