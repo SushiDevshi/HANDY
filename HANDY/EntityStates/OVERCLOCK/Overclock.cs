@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace HANDY.HAND
-{   
+{
     public class OVERCLOCK : BaseState
     {
         public float baseDuration = 0.25f;
@@ -23,7 +23,7 @@ namespace HANDY.HAND
                     teamIndex = TeamComponent.GetObjectTeam(base.gameObject),
                     baseDamage = this.damageStat * 2,
                     baseForce = 5,
-                    position = base.transform.position,
+                    position = base.modelLocator.transform.position,
                     radius = 20,
                     procCoefficient = 0f,
                     falloffModel = BlastAttack.FalloffModel.None,
@@ -40,6 +40,23 @@ namespace HANDY.HAND
                 this.outer.SetNextStateToMain();
                 return;
             }
+        }
+        private Ray GetNextOrbRay()
+        {
+            Ray r = new Ray();
+
+            r.origin = base.modelLocator.transform.position;
+            r.direction = Vector3.up;
+
+            RaycastHit rh;
+
+            if (Physics.Raycast(base.modelLocator.transform.position, Vector3.down, out rh, 1000f, LayerIndex.world.mask, QueryTriggerInteraction.UseGlobal))
+            {
+                r.direction = rh.normal;
+                r.origin = rh.point;
+            }
+
+            return r;
         }
     }
 }
