@@ -329,10 +329,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="EntityStates\OVERCLOCK\OVERCLOCK.cs" />
     <Compile Include="EntityStates\POWERSAVER\POWERSAVER.cs" />
-    <Compile Include="Helpers.cs" />
+    <Compile Include="Stuff\HANDOverlapAttack.cs" />
+    <Compile Include="Stuff\NetworkExtensions.cs" />
+    <Compile Include="Stuff\Helpers.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="EntityStates\BigSlam\CHARGEBIGSLAM.cs" />

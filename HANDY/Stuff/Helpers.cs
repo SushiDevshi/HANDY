@@ -1,5 +1,7 @@
-﻿using RoR2.Projectile;
+﻿using RoR2;
+using RoR2.Projectile;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace HANDY
 {
@@ -129,5 +131,16 @@ namespace HANDY
             return (t.HasComponent<T>() ? t.GetComponent(typeof(T)) : t.gameObject.AddComponent(typeof(T))) as T;
         }
         #endregion
+        public static ProcChainMask ReadProcChainMask(this NetworkReader reader)
+        {
+            return new ProcChainMask
+            {
+                mask = reader.ReadUInt16()
+            };
+        }
+        public static void Write(this NetworkWriter writer, ProcChainMask procChainMask)
+        {
+            writer.Write(procChainMask.mask);
+        }
     }
 }
