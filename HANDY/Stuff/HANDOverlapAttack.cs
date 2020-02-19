@@ -275,6 +275,8 @@ namespace RoR2
         // Token: 0x0400167E RID: 5758
         public static readonly HANDOverlapAttack.HANDOverlapAttackMessage incomingMessage = new HANDOverlapAttack.HANDOverlapAttackMessage();
 
+        public static NetworkWriter write = new NetworkWriter();
+
         // Token: 0x0400167F RID: 5759
         public static readonly HANDOverlapAttack.HANDOverlapAttackMessage outgoingMessage = new HANDOverlapAttack.HANDOverlapAttackMessage();
 
@@ -385,6 +387,7 @@ namespace RoR2
 
             // Token: 0x0400168E RID: 5774
             public bool isCrit;
+
 
             // Token: 0x0400168F RID: 5775
             public ProcChainMask procChainMask;

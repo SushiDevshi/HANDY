@@ -18,7 +18,7 @@ namespace HANDY.Weapon
         //public GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/impacteffects/beetleguardgroundslam");//;
         public GameObject projectilePrefab = Resources.Load<GameObject>("prefabs/projectiles/sunder");
         private Transform hammerChildTransform;
-        private OverlapAttack attack;
+        private HANDOverlapAttack attack;
         private Animator modelAnimator;
         private float duration;
         private bool hasSwung;
@@ -30,14 +30,14 @@ namespace HANDY.Weapon
                 this.duration = this.baseDuration / base.attackSpeedStat;
                 this.modelAnimator = base.GetModelAnimator();
                 Transform modelTransform = base.GetModelTransform();
-                this.attack = new OverlapAttack();
+                this.attack = new HANDOverlapAttack();
                 this.attack.attacker = base.gameObject;
                 this.attack.inflictor = base.gameObject;
                 this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
                 this.attack.damage = this.impactDamageCoefficient * this.damageStat;
                 this.attack.isCrit = RollCrit();
 
-                if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(HANDOverclockController.stunChance, base.characterBody.master))
+                if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(30, base.characterBody.master))
                 {
                     this.attack.damageType = DamageType.Stun1s;
                 }
@@ -69,7 +69,7 @@ namespace HANDY.Weapon
                 if (!this.hasSwung)
                 {
                     Ray aimRay = base.GetAimRay();
-                    ProjectileManager.instance.FireProjectile(this.projectilePrefab, aimRay.origin, Util.QuaternionSafeLookRotation(aimRay.direction), base.gameObject, this.damageStat * this.earthquakeDamageCoefficient, this.forceMagnitude, Util.CheckRoll(this.critStat, base.characterBody.master), DamageColorIndex.Default, null, -1f);
+                    ProjectileManager.instance.FireProjectile(this.projectilePrefab, aimRay.origin, Util.QuaternionSafeLookRotation(aimRay.direction), base.gameObject, this.damageStat * this.earthquakeDamageCoefficient, this.forceMagnitude, RollCrit(), DamageColorIndex.Default, null, -1f);
                     Util.PlaySound("Play_MULT_shift_hit", base.gameObject);
                     this.hasSwung = true;
                 }

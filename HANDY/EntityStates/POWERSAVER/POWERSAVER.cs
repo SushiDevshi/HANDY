@@ -17,41 +17,54 @@ namespace HANDY.Weapon
         {
             base.OnEnter();
             this.duration = POWERSAVER.baseDuration / this.attackSpeedStat;
+            
+            
+                CharacterMaster characterMaster;
+                characterMaster = new MasterSummon
+                {
+                    masterPrefab = MasterCatalog.FindMasterPrefab("Drone2Master"),
+                    position = base.characterBody.footPosition + base.transform.up,
+                    rotation = base.transform.rotation,
+                    summonerBodyObject = null,
+                    ignoreTeamMemberLimit = false,
+                    teamIndexOverride = TeamIndex.Player
 
-            //Debug.Log("characterbody component worked");
-            CharacterBody component = base.characterBody;
-            GameObject gameObject = MasterCatalog.FindMasterPrefab("Drone2Master");
-            //Debug.Log("finding masterprefab worked");
-            GameObject bodyPrefab = HANDY.HANDHealingDrone;
-            //Debug.Log("finding body worked");
-            var master = component.master;
-            //Debug.Log("finding attackermaster worked");
-            GameObject gameObject2 = UnityEngine.Object.Instantiate(gameObject, component.transform.position, component.transform.rotation);
-            //Debug.Log("Instantiate worked");
-            CharacterMaster component2 = gameObject2.GetComponent<CharacterMaster>();
+                }.Perform();
 
-            component2.teamIndex = TeamComponent.GetObjectTeam(component.gameObject);
-            AIOwnership component4 = gameObject2.GetComponent<AIOwnership>();
-            BaseAI component5 = gameObject2.GetComponent<BaseAI>();
-            if (component4)
-            {
-                component4.ownerMaster = master;
+
+                if (base.characterBody.inventory && characterMaster.inventory)
+                {
+                    characterMaster.inventory.CopyItemsFrom(base.characterBody.inventory);
+                    characterMaster.inventory.ResetItem(ItemIndex.AutoCastEquipment);
+                    characterMaster.inventory.ResetItem(ItemIndex.BeetleGland);
+                    characterMaster.inventory.ResetItem(ItemIndex.ExtraLife);
+                    characterMaster.inventory.ResetItem(ItemIndex.ExtraLifeConsumed);
+                    characterMaster.inventory.ResetItem(ItemIndex.FallBoots);
+                    characterMaster.inventory.ResetItem(ItemIndex.TonicAffliction);
+                    characterMaster.inventory.ResetItem(ItemIndex.ExplodeOnDeath);
+                }
+
+                AIOwnership component4 = characterMaster.gameObject.GetComponent<AIOwnership>();
+                BaseAI component5 = characterMaster.gameObject.GetComponent<BaseAI>();
+
+                if (characterMaster.gameObject && characterMaster.bodyPrefab)
+                {
+                    characterMaster.gameObject.AddComponent<MasterSuicideOnTimer>().lifeTimer = 8f;
+                    characterMaster.bodyPrefab = HANDY.HANDHealingDrone;
+                    characterMaster.Respawn(characterMaster.GetBody().footPosition + Vector3.up + Vector3.up, Quaternion.identity);
+                }
+                if (component4)
+                {
+                    component4.ownerMaster = base.characterBody.master;
+                }
+                if (component5)
+                {
+                    component5.leader.gameObject = base.characterBody.master.gameObject;
+                    component5.isHealer = true;
+                    component5.fullVision = true;
+                }
             }
-            if (component5)
-            {
-                component5.leader.gameObject = master.gameObject;
-                component5.isHealer = true;
-                component5.fullVision = true;
-            }
-            Inventory component6 = gameObject2.GetComponent<Inventory>();
-            //Debug.Log("getting inv worked");
-            component6.CopyItemsFrom(master.inventory);
-            //Debug.Log("copying worked");
-            NetworkServer.Spawn(gameObject2);
-            //Debug.Log("network spawning worked");
-            CharacterBody body = component2.SpawnBody(bodyPrefab, base.transform.position + Vector3.up, base.transform.rotation);
-            //Debug.Log("spawning body worked");
-        }
+        
         public override void FixedUpdate()
         {
             base.FixedUpdate();

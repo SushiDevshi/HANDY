@@ -332,7 +332,6 @@
     <Compile Include="EntityStates\OVERCLOCK\OVERCLOCK.cs" />
     <Compile Include="EntityStates\POWERSAVER\POWERSAVER.cs" />
     <Compile Include="Stuff\HANDOverlapAttack.cs" />
-    <Compile Include="Stuff\NetworkExtensions.cs" />
     <Compile Include="Stuff\Helpers.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Controller.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EntityStates;
+using EntityStates.HAND;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
@@ -42,7 +43,7 @@ namespace HANDY.Weapon
             this.attack.hitEffectPrefab = this.hitEffectPrefab;
             this.attack.isCrit = RollCrit();
 
-            if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(HANDOverclockController.stunChance, base.characterBody.master))
+            if (base.HasBuff(HANDY.Overclock) && Util.CheckRoll(30, base.characterBody.master))
             {
                 this.attack.damageType = DamageType.Stun1s;
             }
