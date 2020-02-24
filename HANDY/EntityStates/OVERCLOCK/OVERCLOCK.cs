@@ -10,10 +10,11 @@ namespace HANDY.HAND
     public class OVERCLOCK : BaseState
     {
         public float baseDuration = 0.25f;
+        public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");
         public override void OnEnter()
         {
             base.OnEnter();
-            if (NetworkServer.active && base.isAuthority)
+            if (base.isAuthority)
             {
                 base.GetComponent<HANDOverclockController>().EnableOverclock();
                 new BlastAttack
@@ -22,14 +23,22 @@ namespace HANDY.HAND
                     inflictor = base.gameObject,
                     teamIndex = TeamComponent.GetObjectTeam(base.gameObject),
                     baseDamage = this.damageStat * 2,
-                    baseForce = 5,
+                    baseForce = -10,
                     position = base.modelLocator.transform.position,
-                    radius = 20,
+                    radius = 35,
                     procCoefficient = 0f,
                     falloffModel = BlastAttack.FalloffModel.None,
                     damageType = DamageType.Stun1s,
                     crit = RollCrit()
                 }.Fire();
+                if (OVERCLOCK.hitEffectPrefab)
+                {
+                    EffectManager.SpawnEffect(OVERCLOCK.hitEffectPrefab, new EffectData
+                    {
+                        origin = base.transform.position,
+                        scale = 35
+                    }, false);
+                }
             }
         }
         public override void FixedUpdate()

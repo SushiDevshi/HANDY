@@ -12,83 +12,94 @@ namespace HANDY.Weapon
 {
     public class HURT : BaseState
     {
-        public static float baseDuration = 1.5f;
+        public static float baseDuration = 1.3f;
         public float returnToIdlePercentage = EntityStates.HAND.Weapon.FullSwing.returnToIdlePercentage;
-        public float damageCoefficient = 4.5f;
-        public float forceMagnitude = 32f;
+        public float damageCoefficient = 4f;
+        public float forceMagnitude = 1000f;
         public float radius = 12f;
-        public GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");
-        private Transform hammerChildTransform;
-        private HANDOverlapAttack attack;
-        private Animator modelAnimator;
-        private float duration;
-        private bool hasSwung;
-        private float hitPauseDuration = 0.1f;
-        private bool enteredHitPause = false;
-        private bool exitedHitPause = false;
+        public float duration;
+        public bool hasSwung;
+
+        public Transform hammerChildTransform;
+        public ExtendedOverlapAttack attack;
+        public Animator modelAnimator;
+
+        public float hitPauseDuration = 0.1f;
+        public bool enteredHitPause = false;
+        public bool exitedHitPause = false;
         public float shorthopVelocityFromHit = 8f;
         private float hitPauseTimer = 0f;
         private Vector3 storedVelocity;
+
+        public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfxmedium");
+        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/handslamtrail");
         public override void OnEnter()
         {
             base.OnEnter();
-            this.duration = HURT.baseDuration / this.attackSpeedStat;
-            this.modelAnimator = base.GetModelAnimator();
-            Transform modelTransform = base.GetModelTransform();
-            this.attack = new HANDOverlapAttack();
-            this.attack.attacker = base.gameObject;
-            this.attack.inflictor = base.gameObject;
-            this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
-            this.attack.damage = damageCoefficient * this.damageStat;
-            this.attack.hitEffectPrefab = this.hitEffectPrefab;
-            this.attack.isCrit = RollCrit();
+            if (base.isAuthority)
+            {
+                this.duration = HURT.baseDuration / this.attackSpeedStat;
+                this.modelAnimator = base.GetModelAnimator();
+                Transform modelTransform = base.GetModelTransform();
 
-            if (base.HasBuff(HANDY.Overclock) && Util.CheckRoll(30, base.characterBody.master))
-            {
-                this.attack.damageType = DamageType.Stun1s;
-            }
+                    this.attack = new ExtendedOverlapAttack();
+                    this.attack.attacker = base.gameObject;
+                    this.attack.inflictor = base.gameObject;
+                    this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
+                    this.attack.damage = damageCoefficient * this.damageStat;
+                    this.attack.hitEffectPrefab = HURT.hitEffectPrefab;
+                    this.attack.pushAwayForce = this.forceMagnitude * 2;
+                    this.attack.procCoefficient = 1;
+                    this.attack.upwardsForce = this.forceMagnitude;
+                    this.attack.isCrit = RollCrit();
 
-            if (modelTransform && base.isAuthority && NetworkServer.active)
-            {
-                this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
-                ChildLocator component = modelTransform.GetComponent<ChildLocator>();
-                if (component)
-                {
-                    this.hammerChildTransform = component.FindChild("SwingCenter");
+                if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(30, base.characterBody.master) && base.isAuthority)
+                    {
+                        this.attack.damageType = DamageType.Stun1s;
+                    }
+
+                    if (modelTransform && base.isAuthority)
+                    {
+                        this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
+                        ChildLocator component = modelTransform.GetComponent<ChildLocator>();
+                        if (component)
+                        {
+                            this.hammerChildTransform = component.FindChild("SwingCenter");
+                        }
+                    }
+                    if (this.modelAnimator && base.isAuthority)
+                    {
+                        int layerIndex = this.modelAnimator.GetLayerIndex("Gesture");
+                        if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing3") || this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing1"))
+                        {
+                            base.PlayCrossfade("Gesture", "FullSwing2", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
+                        }
+                        else if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing2"))
+                        {
+                            base.PlayCrossfade("Gesture", "FullSwing3", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
+                        }
+                        else
+                        {
+                            base.PlayCrossfade("Gesture", "FullSwing1", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
+                        }
+                    }
+                    if (base.characterBody)
+                    {
+                        base.characterBody.SetAimTimer(2f);
+                    }
                 }
-            }
-            if (this.modelAnimator && base.isAuthority && NetworkServer.active)
-            {
-                int layerIndex = this.modelAnimator.GetLayerIndex("Gesture");
-                if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing3") || this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing1"))
-                {
-                    base.PlayCrossfade("Gesture", "FullSwing2", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
-                }
-                else if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing2"))
-                {
-                    base.PlayCrossfade("Gesture", "FullSwing3", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
-                }
-                else
-                {
-                    base.PlayCrossfade("Gesture", "FullSwing1", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
-                }
-            }
-            if (base.characterBody)
-            {
-                base.characterBody.SetAimTimer(2f);
-            }
         }
         public override void FixedUpdate()
         {
             base.FixedUpdate();
-            if (base.isAuthority && NetworkServer.active && this.modelAnimator && this.modelAnimator.GetFloat("Hammer.hitBoxActive") > 0.5f)
+            if (base.isAuthority && this.modelAnimator && this.modelAnimator.GetFloat("Hammer.hitBoxActive") > 0.5f)
             {
                 if (!this.hasSwung)
                 {
                     this.hasSwung = true;
+                    EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
                     var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
-
-                    if (CheckCollider(enemies))
+                    if (CheckCollider(enemies) && base.isAuthority)
                     {
                         BeginHitPause();
                     }
@@ -115,11 +126,10 @@ namespace HANDY.Weapon
                     }
                 }
             }
-
         }
         private void BeginHitPause()
         {
-            if (!base.characterMotor.isFlying)
+            if (!base.characterMotor.isFlying && base.isAuthority)
             {
                 this.enteredHitPause = true;
                 this.storedVelocity = base.characterMotor.velocity;
@@ -129,7 +139,6 @@ namespace HANDY.Weapon
         }
         private bool CheckCollider(Collider[] array)
         {
-            // now that we have our enemies, only get the ones within the Y dimension
             var hurtboxes = array.Where(x => x.GetComponent<HurtBox>() != null);
             List<HurtBoxGroup> allReadyDamaged = new List<HurtBoxGroup>();
             foreach (var hurtBox in hurtboxes)
@@ -140,44 +149,55 @@ namespace HANDY.Weapon
                 if (hurtBox2.teamIndex == base.teamComponent.teamIndex) continue; // dont hit teammates LUL
                 allReadyDamaged.Add(hurtBox2.hurtBoxGroup);
             }
-            if (allReadyDamaged == null) return false;  
+            if (allReadyDamaged == null) return false;
             return allReadyDamaged.Count() > 0;
-            
+
         }
+
+
+
         private void ExitHitPause()
         {
-            this.hitPauseTimer = 0f;
-            if (!base.isGrounded)
+            if (base.isAuthority)
             {
-                this.storedVelocity.y = Mathf.Max(this.storedVelocity.y, this.shorthopVelocityFromHit);
+                this.hitPauseTimer = 0f;
+                if (!base.isGrounded)
+                {
+                    this.storedVelocity.y = Mathf.Max(this.storedVelocity.y, this.shorthopVelocityFromHit);
+                }
+                base.characterMotor.velocity = this.storedVelocity;
+                this.storedVelocity = Vector3.zero;
+                this.exitedHitPause = true;
             }
-            base.characterMotor.velocity = this.storedVelocity;
-            this.storedVelocity = Vector3.zero;
-            this.exitedHitPause = true;
         }
 
 
         public override void OnExit()
         {
-            if (!this.hasSwung)
+            if (base.isAuthority)
             {
-                if (this.enteredHitPause)
+                if (!this.hasSwung)
+                {
+                    if (this.enteredHitPause)
+                    {
+                        this.ExitHitPause();
+                    }
+                }
+                if (this.enteredHitPause && !this.exitedHitPause)
                 {
                     this.ExitHitPause();
                 }
+                base.OnExit();
             }
-            if (this.enteredHitPause && !this.exitedHitPause)
-            {
-                this.ExitHitPause();
-            }
-            base.OnExit();
         }
 
         private Collider[] CollectEnemies(float radius, Vector3 position, float maxYDiff)
         {
-            Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
-            array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
-            return array;
+            
+                Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
+                array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
+                return array;
+            
         }
 
         public override InterruptPriority GetMinimumInterruptPriority()
