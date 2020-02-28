@@ -42,52 +42,52 @@ namespace HANDY.Weapon
                 this.modelAnimator = base.GetModelAnimator();
                 Transform modelTransform = base.GetModelTransform();
 
-                    this.attack = new ExtendedOverlapAttack();
-                    this.attack.attacker = base.gameObject;
-                    this.attack.inflictor = base.gameObject;
-                    this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
-                    this.attack.damage = damageCoefficient * this.damageStat;
-                    this.attack.hitEffectPrefab = HURT.hitEffectPrefab;
-                    this.attack.pushAwayForce = this.forceMagnitude * 2;
-                    this.attack.procCoefficient = 1;
-                    this.attack.upwardsForce = this.forceMagnitude;
-                    this.attack.isCrit = RollCrit();
+                this.attack = new ExtendedOverlapAttack();
+                this.attack.attacker = base.gameObject;
+                this.attack.inflictor = base.gameObject;
+                this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
+                this.attack.damage = damageCoefficient * this.damageStat;
+                this.attack.hitEffectPrefab = HURT.hitEffectPrefab;
+                this.attack.pushAwayForce = this.forceMagnitude * 2;
+                this.attack.procCoefficient = 1;
+                this.attack.upwardsForce = this.forceMagnitude;
+                this.attack.isCrit = RollCrit();
 
                 if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(30, base.characterBody.master) && base.isAuthority)
-                    {
-                        this.attack.damageType = DamageType.Stun1s;
-                    }
+                {
+                    this.attack.damageType = DamageType.Stun1s;
+                }
 
-                    if (modelTransform && base.isAuthority)
+                if (modelTransform && base.isAuthority)
+                {
+                    this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
+                    ChildLocator component = modelTransform.GetComponent<ChildLocator>();
+                    if (component)
                     {
-                        this.attack.hitBoxGroup = Array.Find<HitBoxGroup>(modelTransform.GetComponents<HitBoxGroup>(), (HitBoxGroup element) => element.groupName == "Hammer");
-                        ChildLocator component = modelTransform.GetComponent<ChildLocator>();
-                        if (component)
-                        {
-                            this.hammerChildTransform = component.FindChild("SwingCenter");
-                        }
-                    }
-                    if (this.modelAnimator && base.isAuthority)
-                    {
-                        int layerIndex = this.modelAnimator.GetLayerIndex("Gesture");
-                        if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing3") || this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing1"))
-                        {
-                            base.PlayCrossfade("Gesture", "FullSwing2", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
-                        }
-                        else if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing2"))
-                        {
-                            base.PlayCrossfade("Gesture", "FullSwing3", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
-                        }
-                        else
-                        {
-                            base.PlayCrossfade("Gesture", "FullSwing1", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
-                        }
-                    }
-                    if (base.characterBody)
-                    {
-                        base.characterBody.SetAimTimer(2f);
+                        this.hammerChildTransform = component.FindChild("SwingCenter");
                     }
                 }
+                if (this.modelAnimator && base.isAuthority)
+                {
+                    int layerIndex = this.modelAnimator.GetLayerIndex("Gesture");
+                    if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing3") || this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing1"))
+                    {
+                        base.PlayCrossfade("Gesture", "FullSwing2", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
+                    }
+                    else if (this.modelAnimator.GetCurrentAnimatorStateInfo(layerIndex).IsName("FullSwing2"))
+                    {
+                        base.PlayCrossfade("Gesture", "FullSwing3", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
+                    }
+                    else
+                    {
+                        base.PlayCrossfade("Gesture", "FullSwing1", "FullSwing.playbackRate", this.duration / (1f - this.returnToIdlePercentage), 0.2f);
+                    }
+                }
+                if (base.characterBody)
+                {
+                    base.characterBody.SetAimTimer(2f);
+                }
+            }
         }
         public override void FixedUpdate()
         {
@@ -193,11 +193,11 @@ namespace HANDY.Weapon
 
         private Collider[] CollectEnemies(float radius, Vector3 position, float maxYDiff)
         {
-            
-                Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
-                array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
-                return array;
-            
+
+            Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
+            array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
+            return array;
+
         }
 
         public override InterruptPriority GetMinimumInterruptPriority()

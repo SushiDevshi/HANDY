@@ -111,7 +111,7 @@ namespace HANDY
             R2API.AssetPlus.Languages.AddToken("HAND_SECONDARY_NAME", "DRONE");
             R2API.AssetPlus.Languages.AddToken("HAND_SECONDARY_DESCRIPTION", "RELEASE A HEALING DRONE THAT <style=cIsUtility>LIVES FOR 8 SECONDS</style>");
             R2API.AssetPlus.Languages.AddToken("HAND_UTILITY_NAME", "OVERCLOCK");
-            R2API.AssetPlus.Languages.AddToken("HAND_UTILITY_DESCRIPTION", "INCREASE <color=#E5C962>ATTACK SPEED, DAMAGE, AND MOVEMENT SPEED. SUMMON DRONES ON COMBATANT DEATH. </color> ALL ATTACKS <color=#9CE562>HEAL 10% OF FINAL DAMAGE DONE TO COMBATANTS</color>. <color=#95CDE5>INCREASE DURATION BY KILLING COMBATANTS.</color>");
+            R2API.AssetPlus.Languages.AddToken("HAND_UTILITY_DESCRIPTION", "INCREASE <color=#E5C962>ATTACK SPEED, DAMAGE, AND MOVEMENT SPEED. SUMMON DRONES ON COMBATANT DEATH. </color> ALL ATTACKS <color=#9CE562>HEAL 10% OF TOTAL HEALTH</color>. <color=#95CDE5>INCREASE DURATION BY KILLING COMBATANTS.</color>");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_NAME", "FORCED_REASSEMBLY");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_DESCRIPTION", "APPLY GREAT FORCE TO THE GROUND, <style=cIsUtility>CAUSING AN EARTHQUAKE TO FORM</style>. DEALS <color=#E5C962>500% DAMAGE</color> <style=cIsUtility>TO ENEMIES CAUGHT IN THE IMPACT</style>. CAUSES <color=#E5C962>250% DAMAGE</color> <style=cIsUtility>TO ENEMIES CAUGHT IN THE EARTHQUAKE.</style>");
             R2API.AssetPlus.Languages.AddToken("HAND_SPECIAL_ALT_NAME", "UNETHICAL_REASSEMBLY");
@@ -334,7 +334,7 @@ namespace HANDY
                             //CharacterMaster characterMaster;
                             if (damageReport.attackerBody && damageReport.attackerMaster && damageReport.attacker && damageReport.victimBody && damageReport.victimMaster && damageReport.victim && damageReport.attackerBody.teamComponent)
                             {
-                                if (TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 8 && damageReport.attackerBody.multiKillCount <= 2 && NetworkServer.active)
+                                if (TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 15 && damageReport.attackerBody.multiKillCount <= 4)
                                 {
                                     SendNetworkMessage(damageReport.attackerBody.networkIdentity.netId, 1);
                                     damageReport.attackerBody.healthComponent.HealFraction(10, default);
@@ -439,50 +439,53 @@ namespace HANDY
                     {
                         if (MyMessage.summonType == 1) // brood
                         {
-                            characterMaster = new MasterSummon
+                            if (characterBody.inventory && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
                             {
-                                masterPrefab = MasterCatalog.FindMasterPrefab("Drone1Master"),
-                                position = characterBody.footPosition + characterBody.transform.up,
-                                rotation = characterBody.transform.rotation,
-                                summonerBodyObject = null,
-                                ignoreTeamMemberLimit = false,
-                                teamIndexOverride = TeamIndex.Player
-                            }.Perform();
-
-                            if (characterMaster.inventory && characterBody.inventory && characterBody.multiKillCount <= 2 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count < 8)
-                            {
-                                //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "attackerBody's inventory is not null! Copying items!");
-                                characterMaster.inventory.CopyItemsFrom(characterBody.inventory);
-                                characterMaster.inventory.ResetItem(ItemIndex.AutoCastEquipment);
-                                characterMaster.inventory.ResetItem(ItemIndex.BeetleGland);
-                                characterMaster.inventory.ResetItem(ItemIndex.ExtraLife);
-                                characterMaster.inventory.ResetItem(ItemIndex.ExtraLifeConsumed);
-                                characterMaster.inventory.ResetItem(ItemIndex.FallBoots);
-                                characterMaster.inventory.ResetItem(ItemIndex.TonicAffliction);
-                                characterMaster.inventory.ResetItem(ItemIndex.ExplodeOnDeath);
-
-                                characterMaster.inventory.CopyEquipmentFrom(characterBody.inventory);
-                            }
-                            if (characterMaster.gameObject && characterMaster.bodyPrefab && characterBody.networkIdentity.netId.Value > 0 && characterBody.multiKillCount <= 2 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count < 8)
-                            {
-                                //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "characterMaster.gameObject and characterMaster.bodyPrefab are not nulL! Switching body prefabs and spawning.");
-                                characterMaster.bodyPrefab = HANDDrone;
-                                characterMaster.Respawn(characterMaster.GetBody().footPosition + Vector3.up + Vector3.up, Quaternion.identity);
-
-                                if (characterMaster.gameObject.GetComponent<AIOwnership>() && characterBody.networkIdentity.netId.Value > 0 && characterBody.multiKillCount <= 2 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count < 8)
+                                characterMaster = new MasterSummon
                                 {
-                                    AIOwnership component4 = characterMaster.gameObject.GetComponent<AIOwnership>();
-                                    //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "characterMaster.gameObject has component AIOwnership! Setting ownerMaster!");
-                                    component4.ownerMaster = characterBody.master;
+                                    masterPrefab = MasterCatalog.FindMasterPrefab("Drone1Master"),
+                                    position = characterBody.footPosition + characterBody.transform.up,
+                                    rotation = characterBody.transform.rotation,
+                                    summonerBodyObject = null,
+                                    ignoreTeamMemberLimit = false,
+                                    teamIndexOverride = TeamIndex.Player
+                                }.Perform();
+
+                                if (characterMaster.inventory && characterBody.inventory && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
+                                {
+                                    //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "attackerBody's inventory is not null! Copying items!");
+                                    characterMaster.inventory.CopyItemsFrom(characterBody.inventory);
+                                    characterMaster.inventory.ResetItem(ItemIndex.AutoCastEquipment);
+                                    characterMaster.inventory.ResetItem(ItemIndex.BeetleGland);
+                                    characterMaster.inventory.ResetItem(ItemIndex.ExtraLife);
+                                    characterMaster.inventory.ResetItem(ItemIndex.ExtraLifeConsumed);
+                                    characterMaster.inventory.ResetItem(ItemIndex.FallBoots);
+                                    characterMaster.inventory.ResetItem(ItemIndex.TonicAffliction);
+                                    characterMaster.inventory.ResetItem(ItemIndex.ExplodeOnDeath);
+
+                                    characterMaster.inventory.CopyEquipmentFrom(characterBody.inventory);
                                 }
-                                if (characterMaster.gameObject.GetComponent<BaseAI>() && characterBody.networkIdentity.netId.Value < 0 && characterBody.multiKillCount <= 2 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count < 8)
+                                if (characterMaster.gameObject && characterMaster.bodyPrefab && characterBody.networkIdentity.netId.Value > 0 && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
                                 {
-                                    BaseAI component5 = characterMaster.gameObject.GetComponent<BaseAI>();
-                                    //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "characterMaster.gameObject has component AIOwnership! Setting fields leader.gameObject, isHealer, and fullVision!");
-                                    component5.leader.gameObject = characterBody.master.gameObject;
-                                    component5.isHealer = false;
-                                    component5.fullVision = true;
-                                };
+                                    //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "characterMaster.gameObject and characterMaster.bodyPrefab are not nulL! Switching body prefabs and spawning.");
+                                    characterMaster.bodyPrefab = HANDDrone;
+                                    characterMaster.Respawn(characterMaster.GetBody().footPosition + Vector3.up + Vector3.up, Quaternion.identity);
+
+                                    if (characterMaster.gameObject.GetComponent<AIOwnership>() && characterBody.networkIdentity.netId.Value > 0 && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
+                                    {
+                                        AIOwnership component4 = characterMaster.gameObject.GetComponent<AIOwnership>();
+                                        //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "characterMaster.gameObject has component AIOwnership! Setting ownerMaster!");
+                                        component4.ownerMaster = characterBody.master;
+                                    }
+                                    if (characterMaster.gameObject.GetComponent<BaseAI>() && characterBody.networkIdentity.netId.Value < 0 && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
+                                    {
+                                        BaseAI component5 = characterMaster.gameObject.GetComponent<BaseAI>();
+                                        //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "characterMaster.gameObject has component AIOwnership! Setting fields leader.gameObject, isHealer, and fullVision!");
+                                        component5.leader.gameObject = characterBody.master.gameObject;
+                                        component5.isHealer = false;
+                                        component5.fullVision = true;
+                                    };
+                                }
                             }
                         }
                         else if (MyMessage.summonType == 2) // many clones

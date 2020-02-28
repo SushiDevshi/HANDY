@@ -12,7 +12,7 @@ namespace HANDY.Weapon
         public override void OnEnter()
         {
             base.OnEnter();
-            if (NetworkServer.active && base.isAuthority)
+            if (base.isAuthority)
             {
                 this.duration = this.baseDuration / this.attackSpeedStat;
                 this.modelAnimator = base.GetModelAnimator();
