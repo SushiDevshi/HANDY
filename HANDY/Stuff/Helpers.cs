@@ -130,6 +130,7 @@ namespace HANDY
         {
             return (t.HasComponent<T>() ? t.GetComponent(typeof(T)) : t.gameObject.AddComponent(typeof(T))) as T;
         }
+
         #endregion
         public static ProcChainMask ReadProcChainMask(this NetworkReader reader)
         {

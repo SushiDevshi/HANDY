@@ -14,7 +14,7 @@ namespace HANDY.Weapon
         public float baseDuration = 1.2f;
         public float returnToIdlePercentage;
         public float impactDamageCoefficient = 5f;
-        public float earthquakeDamageCoefficient = 2.5f;
+        public float earthquakeDamageCoefficient = 4f;
         public float forceMagnitude = 32f;
         public float radius = 6f;//sunder
         public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");

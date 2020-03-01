@@ -41,7 +41,7 @@ namespace HANDY.Weapon
                 this.duration = HURT.baseDuration / this.attackSpeedStat;
                 this.modelAnimator = base.GetModelAnimator();
                 Transform modelTransform = base.GetModelTransform();
-
+                
                 this.attack = new ExtendedOverlapAttack();
                 this.attack.attacker = base.gameObject;
                 this.attack.inflictor = base.gameObject;
@@ -96,6 +96,7 @@ namespace HANDY.Weapon
             {
                 if (!this.hasSwung)
                 {
+                    Ray aimRay = base.GetAimRay();
                     this.hasSwung = true;
                     EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
                     var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
@@ -104,6 +105,7 @@ namespace HANDY.Weapon
                         BeginHitPause();
                     }
                     Util.PlaySound("Play_MULT_shift_hit", this.gameObject);
+                    //PullEnemies(aimRay.origin, aimRay.direction, 30, 30000, 3000, TeamIndex.Player);
                 }
                 this.attack.forceVector = this.hammerChildTransform.right * this.forceMagnitude;
                 this.attack.Fire(null);
@@ -211,22 +213,22 @@ namespace HANDY.Weapon
             {
                 Vector3 position2 = collider.transform.position;
                 Vector3 normalized = (position - position2).normalized;
-                if (Vector3.Dot(-normalized, direction) >= num)
+                if (Vector3.Dot(-normalized, direction) >= num) 
                 {
-                    TeamComponent component = collider.GetComponent<TeamComponent>();
-                    if (component)
+                    if (collider.GetComponent<TeamComponent>())
                     {
+                        TeamComponent component = collider.GetComponent<TeamComponent>();
                         TeamIndex teamIndex = component.teamIndex;
                         if (teamIndex != excludedTeam)
                         {
-                            CharacterMotor component2 = collider.GetComponent<CharacterMotor>();
-                            if (component2)
+                            if (collider.GetComponent<CharacterMotor>())
                             {
+                                CharacterMotor component2 = collider.GetComponent<CharacterMotor>();
                                 component2.ApplyForce(normalized * force, false, false);
                             }
-                            Rigidbody component3 = collider.GetComponent<Rigidbody>();
-                            if (component3)
+                            if (collider.GetComponent<Rigidbody>())
                             {
+                                Rigidbody component3 = collider.GetComponent<Rigidbody>();
                                 component3.AddForce(normalized * force, ForceMode.Impulse);
                             }
                         }
