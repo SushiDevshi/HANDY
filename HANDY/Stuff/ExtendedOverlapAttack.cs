@@ -104,7 +104,7 @@ namespace HANDY
             return this.overlapList.Count > 0;
         }
 
-        [NetworkMessageHandler(msgType = 71, client = false, server = true)]
+        [NetworkMessageHandler(msgType = 7595, client = false, server = true)]
         public static void HandleExtendedOverlapAttackHits(NetworkMessage netMsg)
         {
             netMsg.ReadMessage<ExtendedOverlapAttack.ExtendedOverlapAttackMessage>(ExtendedOverlapAttack.incomingMessage);
@@ -176,7 +176,7 @@ namespace HANDY
             ExtendedOverlapAttack.outgoingMessage.upwardsForce = this.upwardsForce;
 
             Util.CopyList<ExtendedOverlapAttack.OverlapInfo>(hitList, ExtendedOverlapAttack.outgoingMessage.overlapInfoList);
-            GameNetworkManager.singleton.client.connection.SendByChannel(71, ExtendedOverlapAttack.outgoingMessage, QosChannelIndex.defaultReliable.intVal);
+            GameNetworkManager.singleton.client.connection.SendByChannel(7595, ExtendedOverlapAttack.outgoingMessage, QosChannelIndex.defaultReliable.intVal);
         }
 
         private static void PerformDamage(GameObject attacker, GameObject inflictor, float damage, bool isCrit, ProcChainMask procChainMask, float procCoefficient, DamageColorIndex damageColorIndex, DamageType damageType, Vector3 forceVector, float pushAwayForce, float upwardsForce, List<ExtendedOverlapAttack.OverlapInfo> hitList)
@@ -216,7 +216,7 @@ namespace HANDY
                             if (ClientScene.ready)
                             {
 
-                                ExtendedOverlapAttack.write.StartMessage(71);
+                                ExtendedOverlapAttack.write.StartMessage(7595);
                                 ExtendedOverlapAttack.write.Write(healthComponent.gameObject);
                                 ExtendedOverlapAttack.WriteDamageInfo(ExtendedOverlapAttack.write, damageInfo);
                                 ExtendedOverlapAttack.write.Write(healthComponent != null);
