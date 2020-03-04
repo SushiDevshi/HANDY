@@ -177,7 +177,7 @@ namespace HANDY
 
             characterModel.modelBaseTransform.transform.localScale = characterModel.modelBaseTransform.transform.localScale * 1.2f;
 
-            int i = 0;
+            int i = 0;  
             EntityStateMachine[] esmr = new EntityStateMachine[2];
             foreach (EntityStateMachine esm in HAND.GetComponentsInChildren<EntityStateMachine>())
             {

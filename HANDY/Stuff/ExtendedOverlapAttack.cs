@@ -242,7 +242,7 @@ namespace HANDY
             writer.Write((byte)damageInfo.damageType);
             writer.Write((byte)damageInfo.damageColorIndex);
             writer.Write((byte)(damageInfo.dotIndex + 1));
-        } 
+        }
 
         public void ResetIgnoredHealthComponents()
         {
@@ -292,7 +292,7 @@ namespace HANDY
         public static readonly ExtendedOverlapAttack.ExtendedOverlapAttackMessage outgoingMessage = new ExtendedOverlapAttack.ExtendedOverlapAttackMessage();
 
         public struct OverlapInfo
-        { 
+        {
             public HurtBox hurtBox;
 
             public Vector3 hitPosition;
@@ -317,7 +317,7 @@ namespace HANDY
             public DamageColorIndex damageColorIndex;
 
             public DamageType damageType;
-      
+
             public Vector3 forceVector;
         }
 

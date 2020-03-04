@@ -329,7 +329,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HARB_STOP_LOOKING_THROUGH_MY_CODE_ITS_ON_GITHUB.cs" />
     <Compile Include="EntityStates\OVERCLOCK\OVERCLOCK.cs" />
     <Compile Include="EntityStates\POWERSAVER\POWERSAVER.cs" />
     <Compile Include="Stuff\ExtendedOverlapAttack.cs" />
