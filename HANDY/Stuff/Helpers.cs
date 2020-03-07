@@ -1,4 +1,4 @@
-﻿using RoR2;
+using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -142,6 +142,17 @@ namespace HANDY
         public static void Write(this NetworkWriter writer, ProcChainMask procChainMask)
         {
             writer.Write(procChainMask.mask);
+        }
+        public static System.Boolean CheckIfEntityIsStunned(SetStateOnHurt s)
+        {
+            if (s != null)
+            {
+                if (s.targetStateMachine.GetType() == typeof(EntityStates.StunState))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
