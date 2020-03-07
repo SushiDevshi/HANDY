@@ -22,8 +22,8 @@ namespace HANDY.HAND
                     attacker = base.gameObject,
                     inflictor = base.gameObject,
                     teamIndex = TeamComponent.GetObjectTeam(base.gameObject),
-                    baseDamage = this.damageStat * 2,
-                    baseForce = -10,
+                    baseDamage = this.damageStat * 1.5f,
+                    baseForce = -30,
                     position = base.modelLocator.transform.position,
                     radius = 35,
                     procCoefficient = 0f,
@@ -36,7 +36,7 @@ namespace HANDY.HAND
                     EffectManager.SpawnEffect(OVERCLOCK.hitEffectPrefab, new EffectData
                     {
                         origin = base.transform.position,
-                        scale = 35
+                        scale = 15
                     }, false);
                 }
             }
