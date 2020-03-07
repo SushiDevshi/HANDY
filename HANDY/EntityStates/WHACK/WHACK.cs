@@ -14,7 +14,7 @@ namespace HANDY.Weapon
     {
         public static float baseDuration = 1.3f;
         public float returnToIdlePercentage = EntityStates.HAND.Weapon.FullSwing.returnToIdlePercentage;
-        public float damageCoefficient = 200f;
+        public float damageCoefficient = 2f;
         public float forceMagnitude = 1000f;
         public float radius = 12f;
         public float duration;
