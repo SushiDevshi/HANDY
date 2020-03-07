@@ -19,6 +19,7 @@ namespace HANDY.Weapon
         public float radius = 12f;
         public float duration;
         public bool hasSwung;
+        public bool hasHit;
 
         public Transform hammerChildTransform;
         public ExtendedOverlapAttack attack;
@@ -102,7 +103,7 @@ namespace HANDY.Weapon
                     var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
                     if (CheckCollider(enemies) && base.isAuthority)
                     {
-                        BeginHitPause();
+                        EnterHitPauseState();
                     }
                     Util.PlaySound("Play_MULT_shift_hit", this.gameObject);
                     //PullEnemies(aimRay.origin, aimRay.direction, 30, 30000, 3000, TeamIndex.Player);
@@ -124,21 +125,12 @@ namespace HANDY.Weapon
                     base.characterMotor.velocity = Vector3.zero;
                     if (this.hitPauseTimer <= 0f)
                     {
-                        this.ExitHitPause();
+                        this.ExitHitPauseState();
                     }
                 }
             }
         }
-        private void BeginHitPause()
-        {
-            if (!base.characterMotor.isFlying && base.isAuthority)
-            {
-                this.enteredHitPause = true;
-                this.storedVelocity = base.characterMotor.velocity;
-                base.characterMotor.velocity = Vector3.zero;
-                this.hitPauseTimer = this.hitPauseDuration;
-            }
-        }
+
         private bool CheckCollider(Collider[] array)
         {
             var hurtboxes = array.Where(x => x.GetComponent<HurtBox>() != null);
@@ -158,7 +150,7 @@ namespace HANDY.Weapon
 
 
 
-        private void ExitHitPause()
+        protected virtual void ExitHitPauseState()
         {
             if (base.isAuthority)
             {
@@ -170,9 +162,26 @@ namespace HANDY.Weapon
                 base.characterMotor.velocity = this.storedVelocity;
                 this.storedVelocity = Vector3.zero;
                 this.exitedHitPause = true;
+                if (this.modelAnimator)
+                {
+                    this.modelAnimator.speed = 1f;
+                }
             }
         }
-
+        private void EnterHitPauseState()
+        {
+            if (!base.characterMotor.isFlying && base.isAuthority)
+            {
+                this.enteredHitPause = true;
+                this.storedVelocity = base.characterMotor.velocity;
+                base.characterMotor.velocity = Vector3.zero;
+                this.hitPauseTimer = this.hitPauseDuration;
+                if (this.modelAnimator)
+                {
+                    this.modelAnimator.speed = 0f;
+                }
+            }
+        }
 
         public override void OnExit()
         {
@@ -182,12 +191,12 @@ namespace HANDY.Weapon
                 {
                     if (this.enteredHitPause)
                     {
-                        this.ExitHitPause();
+                        this.ExitHitPauseState();
                     }
                 }
                 if (this.enteredHitPause && !this.exitedHitPause)
                 {
-                    this.ExitHitPause();
+                    this.ExitHitPauseState();
                 }
                 base.OnExit();
             }
