@@ -158,6 +158,7 @@ namespace HANDY
                 }
             }
             this.lastFireAverageHitPosition = vector;
+            //Since we're the server, we can do damage pretty freely.
             if (NetworkServer.active)
             {
                 ExtendedOverlapAttack.PerformDamage(this.attacker, this.inflictor, this.damage, this.isCrit, this.procChainMask, this.procCoefficient, this.damageColorIndex, this.damageType, this.forceVector, this.pushAwayForce, this.upwardsForce, hitList);
@@ -206,6 +207,7 @@ namespace HANDY
                         }
                         if (NetworkServer.active)
                         {
+                            //We're the server, and we can do whatever the fug we want with damage!
                             damageInfo.ModifyDamageInfo(overlapInfo.hurtBox.damageModifier);
                             healthComponent.TakeDamage(damageInfo);
                             GlobalEventManager.instance.OnHitEnemy(damageInfo, healthComponent.gameObject);
@@ -215,20 +217,22 @@ namespace HANDY
                         {
                             if (ClientScene.ready)
                             {
-
-                                ExtendedOverlapAttack.write.StartMessage(7595);
+                                //It's the hosts world, and we're just livin' in it.
+                                ExtendedOverlapAttack.write.StartMessage(53);
+                                //Always use 53 when writing damage, else, the game will not recongize it.
                                 ExtendedOverlapAttack.write.Write(healthComponent.gameObject);
                                 ExtendedOverlapAttack.WriteDamageInfo(ExtendedOverlapAttack.write, damageInfo);
                                 ExtendedOverlapAttack.write.Write(healthComponent != null);
                                 ExtendedOverlapAttack.write.FinishMessage();
                                 ClientScene.readyConnection.SendWriter(ExtendedOverlapAttack.write, QosChannelIndex.defaultReliable.intVal);
-                            }
+                                //Always write on the default reliable intVal, for obvious reasons.
                         }
                     }
                 }
             }
         }
 
+        //Easiest way you can just write damage info, by making a method that does it for you!
         public static void WriteDamageInfo(NetworkWriter writer, DamageInfo damageInfo)
         {
             writer.Write(damageInfo.damage);
