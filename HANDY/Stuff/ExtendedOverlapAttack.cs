@@ -226,6 +226,7 @@ namespace HANDY
                                 ExtendedOverlapAttack.write.FinishMessage();
                                 ClientScene.readyConnection.SendWriter(ExtendedOverlapAttack.write, QosChannelIndex.defaultReliable.intVal);
                                 //Always write on the default reliable intVal, for obvious reasons.
+                            }
                         }
                     }
                 }
