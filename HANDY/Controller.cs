@@ -147,5 +147,56 @@ namespace HANDY
             ExtendedOverlapAttack.write.FinishMessage();
             ClientScene.readyConnection.SendWriter(ExtendedOverlapAttack.write, QosChannelIndex.defaultReliable.intVal);
         }
+        public class OverclockMessage : MessageBase
+        {
+            public override void Serialize(NetworkWriter writer)
+            {
+                base.Serialize(writer);
+                writer.Write(this.rechargingOnHit);
+                writer.Write(this.overclockOn);
+                writer.Write(this.stunChance);
+                writer.Write(this.attackSpeedBonus);
+                writer.Write(this.maxDuration);
+                writer.Write(this.healPercentOnHit);
+                writer.Write(this.overclockTargetArmor);
+                writer.Write(this.characterBody);
+                writer.Write(this.duration);
+                writer.Write(this.rechargingOnHitDuration);
+                writer.Write(this.setStateOnHurt);
+                writer.Write(this.rechargingOnHit);
+                writer.Write(this.characterBody.baseAttackSpeed);
+                writer.Write(this.characterBody.baseDamage);
+            }
+            public override void Deserialize(NetworkReader reader)
+            {
+                base.Deserialize(reader);
+                this.attacker = reader.ReadGameObject();
+                this.inflictor = reader.ReadGameObject();
+                this.damage = reader.ReadSingle();
+                this.isCrit = reader.ReadBoolean();
+                this.procChainMask = reader.ReadProcChainMask();
+                this.procCoefficient = reader.ReadSingle();
+                this.damageColorIndex = reader.ReadDamageColorIndex();
+                this.damageType = reader.ReadDamageType();
+                this.forceVector = reader.ReadVector3();
+                this.pushAwayForce = reader.ReadSingle();
+                this.upwardsForce = reader.ReadSingle();
+                this.overlapInfoList.Clear();
+
+
+                int i = 0;
+                int num = (int)reader.ReadPackedUInt32();
+                while (i < num)
+                {
+                    ExtendedOverlapAttack.OverlapInfo item = default(ExtendedOverlapAttack.OverlapInfo);
+                    GameObject gameObject = reader.ReadHurtBoxReference().ResolveGameObject();
+                    item.hurtBox = ((gameObject != null) ? gameObject.GetComponent<HurtBox>() : null);
+                    item.hitPosition = reader.ReadVector3();
+                    item.pushDirection = reader.ReadVector3();
+                    this.overlapInfoList.Add(item);
+                    i++;
+                }
+            }
+        }
     }
 }
