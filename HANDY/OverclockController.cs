@@ -147,7 +147,9 @@ namespace HANDY
             ExtendedOverlapAttack.write.FinishMessage();
             ClientScene.readyConnection.SendWriter(ExtendedOverlapAttack.write, QosChannelIndex.defaultReliable.intVal);
         }
-        public class OverclockMessage : MessageBase
+    }
+}
+        /*public class OverclockMessage : MessageBase
         {
             public override void Serialize(NetworkWriter writer)
             {
@@ -199,4 +201,4 @@ namespace HANDY
             }
         }
     }
-}
+}*/

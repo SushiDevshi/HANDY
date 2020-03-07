@@ -10,11 +10,11 @@ using UnityEngine.Networking;
 
 namespace HANDY.Weapon
 {
-    public class HURT : BaseState
+    public class WHACK : BaseState
     {
         public static float baseDuration = 1.3f;
         public float returnToIdlePercentage = EntityStates.HAND.Weapon.FullSwing.returnToIdlePercentage;
-        public float damageCoefficient = 4f;
+        public float damageCoefficient = 200f;
         public float forceMagnitude = 1000f;
         public float radius = 12f;
         public float duration;
@@ -33,13 +33,13 @@ namespace HANDY.Weapon
         private Vector3 storedVelocity;
 
         public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfxmedium");
-        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/handslamtrail");
+        //public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/handslamtrail");
         public override void OnEnter()
         {
             base.OnEnter();
             if (base.isAuthority)
             {
-                this.duration = HURT.baseDuration / this.attackSpeedStat;
+                this.duration = WHACK.baseDuration / this.attackSpeedStat;
                 this.modelAnimator = base.GetModelAnimator();
                 Transform modelTransform = base.GetModelTransform();
 
@@ -48,10 +48,10 @@ namespace HANDY.Weapon
                 this.attack.inflictor = base.gameObject;
                 this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
                 this.attack.damage = damageCoefficient * this.damageStat;
-                this.attack.hitEffectPrefab = HURT.hitEffectPrefab;
-                this.attack.pushAwayForce = this.forceMagnitude * 2;
+                this.attack.hitEffectPrefab = WHACK.hitEffectPrefab;
+                this.attack.pushAwayForce = this.forceMagnitude * 4;
                 this.attack.procCoefficient = 1;
-                this.attack.upwardsForce = this.forceMagnitude;
+                this.attack.upwardsForce = this.forceMagnitude * 4;
                 this.attack.isCrit = RollCrit();
 
                 if (base.GetComponent<HANDOverclockController>().overclockOn && Util.CheckRoll(30, base.characterBody.master) && base.isAuthority)
@@ -99,14 +99,14 @@ namespace HANDY.Weapon
                 {
                     Ray aimRay = base.GetAimRay();
                     this.hasSwung = true;
-                    EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
+                    //EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
                     var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
                     if (CheckCollider(enemies) && base.isAuthority)
                     {
                         EnterHitPauseState();
                     }
                     Util.PlaySound("Play_MULT_shift_hit", this.gameObject);
-                    //PullEnemies(aimRay.origin, aimRay.direction, 30, 30000, 3000, TeamIndex.Player);
+                    PullEnemies(aimRay.origin, aimRay.direction, 30, 3000, 3000, TeamIndex.Player);
                 }
                 this.attack.forceVector = this.hammerChildTransform.right * this.forceMagnitude;
                 this.attack.Fire(null);

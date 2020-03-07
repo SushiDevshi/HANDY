@@ -329,12 +329,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EntityStates\WHACK\WHACK.cs" />
     <Compile Include="EntityStates\OVERCLOCK\OVERCLOCK.cs" />
     <Compile Include="EntityStates\POWERSAVER\POWERSAVER.cs" />
     <Compile Include="Stuff\ExtendedOverlapAttack.cs" />
     <Compile Include="Stuff\Helpers.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="Controller.cs" />
+    <Compile Include="OverclockController.cs" />
     <Compile Include="EntityStates\BigSlam\CHARGEBIGSLAM.cs" />
     <Compile Include="EntityStates\BigSlam\BIGSLAM.cs" />
     <Compile Include="EntityStates\Slam\CHARGESLAM.cs" />
