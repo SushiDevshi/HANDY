@@ -21,6 +21,7 @@ namespace HANDY
         public float healPercentOnHit = 0.06f;
         public float overclockTargetArmor = 30f;
         private CharacterBody characterBody;
+        private Transform modelTransform;
         private TeamComponent teamComponent;
         private float duration;
         private float rechargingOnHitDuration;
@@ -30,7 +31,7 @@ namespace HANDY
             this.characterBody = base.GetComponent<CharacterBody>();
             this.teamComponent = base.GetComponent<TeamComponent>();
             this.setStateOnHurt = base.GetComponent<SetStateOnHurt>();
-            //this.rendererInfos = base.GetComponent<CharacterModel>().baseRendererInfos;
+            this.modelTransform = base.GetComponent<Transform>();
             this.overclockOn = false;
         }
         private void Update()
@@ -56,11 +57,8 @@ namespace HANDY
         {
             if (!this.overclockOn)
             {
-                //this.golden = new Texture2D(1, 1);
-                //this.rendererInfos = base.GetComponent
-                //Material defaultmaterial = rendererInfos[0].defaultMaterial;
-                //this.blue = (defaultmaterial.GetTexture("matHAND") as Texture2D);
-                //defaultmaterial.mainTexture = (this.golden as Texture);
+
+                this.modelTransform.GetComponent<CharacterModel>().baseRendererInfos[0].defaultMaterial = Resources.Load<Material>("Materials/matMercEnergized");
                 this.overclockOn = true;
                 this.characterBody.isChampion = true;
                 this.setStateOnHurt.canBeFrozen = false;
@@ -114,17 +112,15 @@ namespace HANDY
         }
         public void AddDurationOnHit()
         {
-            if (NetworkServer.active)
+
+            this.rechargingOnHit = true;
+            this.rechargingOnHitDuration = 0.5f * (HURT.baseDuration / (this.characterBody.attackSpeed + this.attackSpeedBonus));
+            this.duration += this.durationOnHit;
+            if (this.duration > this.maxDuration)
             {
-                this.rechargingOnHit = true;
-                this.rechargingOnHitDuration = 0.5f * (HURT.baseDuration / (this.characterBody.attackSpeed + this.attackSpeedBonus));
-                this.duration += this.durationOnHit;
-                bool flag = this.duration > this.maxDuration;
-                if (this.duration > this.maxDuration)
-                {
-                    this.duration = this.maxDuration;
-                }
+                this.duration = this.maxDuration;
             }
+
         }
 
         public void WriteOverclockInfo(NetworkWriter writer)

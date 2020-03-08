@@ -381,9 +381,10 @@ namespace HANDY
                             //CharacterMaster characterMaster;
                             if (damageReport.attackerBody && damageReport.attackerMaster && damageReport.attacker && damageReport.victimBody && damageReport.victimMaster && damageReport.victim && damageReport.attackerBody.teamComponent)
                             {
+                                damageReport.attacker.GetComponent<HANDOverclockController>().AddDurationOnHit();
                                 if (TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 15 && damageReport.attackerBody.multiKillCount <= 4)
                                 {
-                                    SendNetworkMessage(Util.LookUpBodyNetworkUser(damageReport.attacker).GetComponent<CharacterBody>().networkIdentity.netId, 1);
+                                    SendNetworkMessage(damageReport.attacker.GetComponent<CharacterBody>().networkIdentity.netId, 1);
                                     damageReport.attackerBody.healthComponent.HealFraction(10, default);
 
                                 }
@@ -470,7 +471,7 @@ namespace HANDY
             });
         }
 
-        [RoR2.Networking.NetworkMessageHandler(msgType = HandleId, client = false, server = true)]
+        [RoR2.Networking.NetworkMessageHandler(msgType = HandleId, client = true)]
         public static void HandleDropItem(NetworkMessage netMsg)
         {
             var MyMessage = netMsg.ReadMessage<MyMessage>();
