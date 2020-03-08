@@ -11,6 +11,7 @@ namespace HANDY.HAND
     {
         public float baseDuration = 0.25f;
         public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");
+        public Transform modelTransform;
         public override void OnEnter()
         {
             base.OnEnter();
@@ -25,7 +26,7 @@ namespace HANDY.HAND
                     baseDamage = this.damageStat * 1.5f,
                     baseForce = -30,
                     position = base.modelLocator.transform.position,
-                    radius = 35,
+                    radius = 15,
                     procCoefficient = 0f,
                     falloffModel = BlastAttack.FalloffModel.None,
                     damageType = DamageType.Stun1s,
@@ -38,6 +39,17 @@ namespace HANDY.HAND
                         origin = base.transform.position,
                         scale = 15
                     }, false);
+                }
+                this.modelTransform = GetModelTransform();
+                if (this.modelTransform)
+                {
+                    TemporaryOverlay temporaryOverlay = this.modelTransform.gameObject.AddComponent<TemporaryOverlay>();
+                    temporaryOverlay.duration = base.GetComponent<HANDOverclockController>().maxDuration;
+                    temporaryOverlay.animateShaderAlpha = true;
+                    temporaryOverlay.alphaCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
+                    temporaryOverlay.destroyComponentOnEnd = true;
+                    temporaryOverlay.originalMaterial = Resources.Load<Material>("Materials/matMercEnergized");
+                    temporaryOverlay.AddToCharacerModel(this.modelTransform.GetComponent<CharacterModel>());
                 }
             }
         }

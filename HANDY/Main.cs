@@ -33,7 +33,7 @@ namespace HANDY
         public static BuffIndex Overclock { get; private set; }
         public void Awake()
         {
-            //On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
+            On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
             #region Prefabs
             HAND = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("HAND_CLONE", true);
             HANDDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone1Body").InstantiateClone("HAND_DRONE_CLONE", true);
@@ -499,9 +499,6 @@ namespace HANDY
                                     teamIndexOverride = TeamIndex.Player
                                 }.Perform();
 
-                                if (CheckIfEntityIsStunned(characterBody.gameObject.GetComponent<SetStateOnHurt>()))
-                                {   
-                                }
                                 if (characterMaster.inventory && characterBody.inventory && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
                                 {
                                     //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "attackerBody's inventory is not null! Copying items!");

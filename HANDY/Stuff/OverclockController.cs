@@ -57,8 +57,6 @@ namespace HANDY
         {
             if (!this.overclockOn)
             {
-
-                this.modelTransform.GetComponent<CharacterModel>().baseRendererInfos[0].defaultMaterial = Resources.Load<Material>("Materials/matMercEnergized");
                 this.overclockOn = true;
                 this.characterBody.isChampion = true;
                 this.setStateOnHurt.canBeFrozen = false;
@@ -77,7 +75,7 @@ namespace HANDY
                 {
                     if (ClientScene.ready)
                     {
-                        this.WriteOverclockInfo(ExtendedOverlapAttack.write);
+                        Debug.Log("Bitch");
                     }
                 }
 
@@ -105,7 +103,8 @@ namespace HANDY
                 {
                     if (ClientScene.ready)
                     {
-                        this.WriteOverclockInfo(ExtendedOverlapAttack.write);
+                        Debug.Log("Bitch");
+                        //this.WriteOverclockInfo(ExtendedOverlapAttack.write);
                     }
                 }
             }
@@ -122,8 +121,10 @@ namespace HANDY
             }
 
         }
+    }
+}
 
-        public void WriteOverclockInfo(NetworkWriter writer)
+        /*public void WriteOverclockInfo(NetworkWriter writer)
         {
             ExtendedOverlapAttack.write.StartMessage(77);
             writer.Write(this.rechargingOnHit);
