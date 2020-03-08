@@ -15,7 +15,7 @@ namespace HANDY.Weapon
         public static float baseDuration = 1.3f;
         public float returnToIdlePercentage = EntityStates.HAND.Weapon.FullSwing.returnToIdlePercentage;
         public float damageCoefficient = 4f;
-        public float forceMagnitude = 1000f;
+        public float forceMagnitude = 1250f;
         public float radius = 12f;
         public float duration;
         public bool hasSwung;
@@ -49,7 +49,7 @@ namespace HANDY.Weapon
                 this.attack.teamIndex = TeamComponent.GetObjectTeam(this.attack.attacker);
                 this.attack.damage = damageCoefficient * this.damageStat;
                 this.attack.hitEffectPrefab = HURT.hitEffectPrefab;
-                this.attack.pushAwayForce = this.forceMagnitude * 2;
+                this.attack.pushAwayForce = this.forceMagnitude;
                 this.attack.procCoefficient = 1;
                 this.attack.upwardsForce = this.forceMagnitude;
                 this.attack.isCrit = RollCrit();
@@ -100,16 +100,15 @@ namespace HANDY.Weapon
                     Ray aimRay = base.GetAimRay();
                     this.hasSwung = true;
                     EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
-                    var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
-                    if (CheckCollider(enemies) && base.isAuthority)
+                    if (CheckIfAttackHit(3, base.transform.position + base.characterDirection.forward * 2f, 1f) && base.isAuthority)
                     {
                         EnterHitPauseState();
                     }
                     Util.PlaySound("Play_MULT_shift_hit", this.gameObject);
                     //PullEnemies(aimRay.origin, aimRay.direction, 30, 30000, 3000, TeamIndex.Player);
                 }
-                this.attack.forceVector = this.hammerChildTransform.right * this.forceMagnitude;
                 this.attack.Fire(null);
+                this.attack.forceVector = this.hammerChildTransform.right * this.forceMagnitude;
             }
             if (base.fixedAge >= this.duration && base.isAuthority)
             {
@@ -118,8 +117,7 @@ namespace HANDY.Weapon
             }
             else
             {
-                var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
-                if (base.isAuthority && this.enteredHitPause && this.hitPauseTimer > 0f && (CheckCollider(enemies)))
+                if (base.isAuthority && this.enteredHitPause && this.hitPauseTimer > 0f && (CheckIfAttackHit(3, base.transform.position + base.characterDirection.forward * 2f, 3f)))
                 {
                     this.hitPauseTimer -= Time.fixedDeltaTime;
                     base.characterMotor.velocity = Vector3.zero;
@@ -130,9 +128,10 @@ namespace HANDY.Weapon
                 }
             }
         }
-
-        private bool CheckCollider(Collider[] array)
+        private bool CheckIfAttackHit(float radius, Vector3 position, float maxYDiff)
         {
+            Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
+            array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
             var hurtboxes = array.Where(x => x.GetComponent<HurtBox>() != null);
             List<HurtBoxGroup> allReadyDamaged = new List<HurtBoxGroup>();
             foreach (var hurtBox in hurtboxes)
@@ -162,10 +161,10 @@ namespace HANDY.Weapon
                 base.characterMotor.velocity = this.storedVelocity;
                 this.storedVelocity = Vector3.zero;
                 this.exitedHitPause = true;
-                if (this.modelAnimator)
-                {
-                    this.modelAnimator.speed = 1f;
-                }
+                //if (this.modelAnimator)
+                //{
+                //    this.modelAnimator.speed = 1f;
+                //}
             }
         }
         private void EnterHitPauseState()
@@ -176,10 +175,10 @@ namespace HANDY.Weapon
                 this.storedVelocity = base.characterMotor.velocity;
                 base.characterMotor.velocity = Vector3.zero;
                 this.hitPauseTimer = this.hitPauseDuration;
-                if (this.modelAnimator)
-                {
-                    this.modelAnimator.speed = 0f;
-                }
+                //if (this.modelAnimator)
+                //{
+                //    this.modelAnimator.speed = 0f;
+                //}
             }
         }
 
@@ -200,15 +199,6 @@ namespace HANDY.Weapon
                 }
                 base.OnExit();
             }
-        }
-
-        private Collider[] CollectEnemies(float radius, Vector3 position, float maxYDiff)
-        {
-
-            Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
-            array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
-            return array;
-
         }
 
         public override InterruptPriority GetMinimumInterruptPriority()

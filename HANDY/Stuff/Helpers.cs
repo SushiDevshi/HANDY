@@ -143,7 +143,7 @@ namespace HANDY
         {
             writer.Write(procChainMask.mask);
         }
-        public static System.Boolean CheckIfEntityIsStunned(SetStateOnHurt s)
+        public static bool CheckIfEntityIsStunned(SetStateOnHurt s)
         {
             if (s != null)
             {

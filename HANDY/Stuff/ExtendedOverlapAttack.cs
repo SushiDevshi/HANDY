@@ -218,8 +218,8 @@ namespace HANDY
                             if (ClientScene.ready)
                             {
                                 //It's the hosts world, and we're just livin' in it.
-                                ExtendedOverlapAttack.write.StartMessage(53);
-                                //Always use 53 when writing damage, else, the game will not recongize it.
+                                ExtendedOverlapAttack.write.StartMessage(7595);
+                                //Use our own cool channel, else, the game will not recongize it.
                                 ExtendedOverlapAttack.write.Write(healthComponent.gameObject);
                                 ExtendedOverlapAttack.WriteDamageInfo(ExtendedOverlapAttack.write, damageInfo);
                                 ExtendedOverlapAttack.write.Write(healthComponent != null);
