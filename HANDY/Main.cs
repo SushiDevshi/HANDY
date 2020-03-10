@@ -158,7 +158,7 @@ namespace HANDY
             characterBody.levelMoveSpeed = 0;
             characterBody.levelRegen = 0.5f;
             characterBody.portraitIcon = Portrait;
-            characterBody.preferredPodPrefab = Resources.Load<GameObject>("prefabs/networkedobjects/robocratepod");
+            characterBody.preferredPodPrefab = Resources.Load<GameObject>("prefabs/networkedobjects/robocratepod"); 
 
             CharacterDeathBehavior characterDeathBehavior = HANDDrone.GetComponent<CharacterDeathBehavior>();
             characterDeathBehavior.enabled = false;

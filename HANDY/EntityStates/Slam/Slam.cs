@@ -95,7 +95,7 @@ namespace HANDY.Weapon
                         {
                             origin = aimRay.origin,
                             scale = 10
-                        }, true);
+                        }, true);   
                     }
                     Util.PlaySound("Play_MULT_shift_hit", base.gameObject);
                     this.hasSwung = true;

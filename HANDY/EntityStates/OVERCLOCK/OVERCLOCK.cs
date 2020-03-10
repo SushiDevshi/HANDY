@@ -26,7 +26,7 @@ namespace HANDY.HAND
                     baseDamage = this.damageStat * 1.5f,
                     baseForce = -30,
                     position = base.modelLocator.transform.position,
-                    radius = 35,
+                    radius = 15,
                     procCoefficient = 0f,
                     falloffModel = BlastAttack.FalloffModel.None,
                     damageType = DamageType.Stun1s,
