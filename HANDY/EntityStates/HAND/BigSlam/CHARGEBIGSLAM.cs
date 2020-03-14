@@ -1,7 +1,7 @@
 ﻿using EntityStates;
 using UnityEngine;
 
-namespace Servos.Weapon
+namespace HANDY.Weapon
 {
     public class CHARGEBIGSLAM : BaseState
     {

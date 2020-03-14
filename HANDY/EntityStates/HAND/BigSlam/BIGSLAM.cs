@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using EntityStates;
-using HANDY;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Servos.Weapon
+namespace HANDY.Weapon
 {
     public class BIGSLAM : BaseState
     {
@@ -102,23 +101,10 @@ namespace Servos.Weapon
                     Ray aimRay = base.GetAimRay();
                     EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
                     blastAttack.Fire();
-                    for (float num = 0f; num < 9f; num += 1f)
+                    var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
+                    if (CheckCollider(enemies))
                     {
-                        float num2 = 6.2831855f;
-                        Vector3 forward = new Vector3(Mathf.Cos(num / 9f * num2), 0f, Mathf.Sin(num / 9f * num2));
-                        FireProjectileInfo fireProjectileInfo2 = new FireProjectileInfo
-                        {
-                            projectilePrefab = gameObject,
-                            position = base.characterBody.corePosition,
-                            rotation = Quaternion.LookRotation(forward),
-                            damage = this.damageStat * 1f,
-                            force = 80f,
-                            crit = RollCrit(),
-                            damageColorIndex = DamageColorIndex.Default,
-                            target = null,
-                            owner = base.gameObject
-                        };
-                        ProjectileManager.instance.FireProjectile(fireProjectileInfo2);
+                        BeginHitPause();
                     }
                     if (BIGSLAM.notificationEffectPrefab)
                     {

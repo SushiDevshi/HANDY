@@ -330,18 +330,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EntityStates\WHACK\WHACK.cs" />
-    <Compile Include="EntityStates\OVERCLOCK\OVERCLOCK.cs" />
-    <Compile Include="EntityStates\POWERSAVER\POWERSAVER.cs" />
+    <Compile Include="EntityStates\BigSlam\BIGSLAM.cs" />
+    <Compile Include="EntityStates\BigSlam\CHARGEBIGSLAM.cs" />
+    <Compile Include="EntityStates\Servos.cs" />
+    <Compile Include="EntityStates\HAND\WHACK\WHACK.cs" />
+    <Compile Include="EntityStates\HAND\OVERCLOCK\OVERCLOCK.cs" />
+    <Compile Include="EntityStates\HAND\POWERSAVER\POWERSAVER.cs" />
     <Compile Include="Stuff\ExtendedOverlapAttack.cs" />
     <Compile Include="Stuff\Helpers.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Stuff\OverclockController.cs" />
-    <Compile Include="EntityStates\BigSlam\CHARGEBIGSLAM.cs" />
-    <Compile Include="EntityStates\BigSlam\BIGSLAM.cs" />
-    <Compile Include="EntityStates\Slam\CHARGESLAM.cs" />
-    <Compile Include="EntityStates\Slam\SLAM.cs" />
-    <Compile Include="EntityStates\HURT\HURT.cs" />
+    <Compile Include="EntityStates\HAND\BigSlam\CHARGEBIGSLAM.cs" />
+    <Compile Include="EntityStates\HAND\BigSlam\BIGSLAM.cs" />
+    <Compile Include="EntityStates\HAND\SLAM\CHARGESLAM.cs" />
+    <Compile Include="EntityStates\HAND\SLAM\SLAM.cs" />
+    <Compile Include="EntityStates\HAND\HURT\HURT.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
