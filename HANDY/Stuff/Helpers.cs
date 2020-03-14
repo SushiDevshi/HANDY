@@ -28,6 +28,19 @@ namespace HANDY
             }
             return false;
         }
+        public static System.Boolean RegisterNewMaster(GameObject g)
+        {
+            if (g != null && g.GetComponent<CharacterMaster>())
+            {
+                MasterCatalog.getAdditionalEntries += list =>
+                {
+                    list.Add(g);
+                };
+
+                return true;
+            }
+            return false;
+        }
         /*
          *     DirectorAPI.MonsterActions += delegate (List<DirectorAPI.DirectorCardHolder> list, DirectorAPI.StageInfo stage)
             {

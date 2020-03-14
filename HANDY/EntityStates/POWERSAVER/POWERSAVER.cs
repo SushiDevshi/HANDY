@@ -21,7 +21,7 @@ namespace HANDY.Weapon
             {
                 if (base.characterBody.networkIdentity.netId.Value > 0)
                 {
-                    HANDY.SendNetworkMessage(base.characterBody.networkIdentity.netId, 2);
+                    Main.SendNetworkMessage(base.characterBody.networkIdentity.netId, 2);
                 }
                 /*
                 if (base.characterBody.master && base.characterBody.inventory)
