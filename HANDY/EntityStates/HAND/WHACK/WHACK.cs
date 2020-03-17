@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EntityStates;
 using EntityStates.HAND;
+using EntityStates.HAND.Weapon;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
@@ -13,7 +14,7 @@ namespace HANDY.Weapon
     public class WHACK : BaseState
     {
         public static float baseDuration = 1.3f;
-        public float returnToIdlePercentage = EntityStates.HAND.Weapon.FullSwing.returnToIdlePercentage;
+        public float returnToIdlePercentage = FullSwing.returnToIdlePercentage;
         public float damageCoefficient = 2.5f;
         public float forceMagnitude = 4000;
         public float radius = 12f;

@@ -1,3 +1,4 @@
+using EntityStates;
 using RoR2;
 using RoR2.Projectile;
 using UnityEngine;
@@ -160,7 +161,7 @@ namespace HANDY
         {
             if (s != null)
             {
-                if (s.targetStateMachine.GetType() == typeof(EntityStates.StunState))
+                if (s.targetStateMachine.GetType() == typeof(StunState))
                 {
                     return true;
                 }

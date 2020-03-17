@@ -16,6 +16,7 @@ using static HANDY.Helpers;
 using static RoR2.CharacterAI.AISkillDriver;
 using EntityStates;
 using EntityStates.HAND.Weapon;
+using Servos;
 
 namespace HANDY
 {
@@ -56,7 +57,7 @@ namespace HANDY
             this.ServosMaster = Resources.Load<GameObject>("prefabs/charactermasters/MercMonsterMaster").InstantiateClone("ServosMaster", true);
             RegisterNewMaster(this.ServosMaster);
 
-            this.ServosBody = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("Servos", true);
+            this.ServosBody = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("ServosBody", true);
             RegisterNewBody(this.ServosBody);
 
             Main.HANDGunnerDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone1Body").InstantiateClone("HAND_DRONE_CLONE", true);
@@ -92,10 +93,18 @@ namespace HANDY
 
         private void CreateServos(GameObject ServosMaster, GameObject ServosBody)
         {
+            /*ServosBody.AddComponent<ServosOverclockController>();
+            ServosBody.GetComponent<SfxLocator>().landingSound = "play_char_land";
+            ServosBody.GetComponent<CharacterMotor>().mass = 250;
+            ServosBody.GetComponent<CharacterDirection>().turnSpeed = 300;
+            ServosBody.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale = ServosBody.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale * 2f;
+            */
             GeneralSetUp(ServosMaster, ServosBody);
             DestroySkillDrivers(ServosMaster);
             CreateSkillDrivers(ServosMaster);
             SetUpDirectorCard(ServosMaster);
+            //RegisterServosStats(this.ServosBody.GetComponent<CharacterBody>());
+            RegisterServosSkills(ServosBody.GetComponent<SkillLocator>());
             AddServosTokens();
         }
         private void CreateHAND(GameObject HAND)
@@ -551,7 +560,7 @@ namespace HANDY
             Primary.mustKeyPress = false;
             Primary.requiredStock = 1;
             Primary.stockToConsume = 1;
-            Primary.activationState = new SerializableEntityStateType(typeof(HURT));
+            Primary.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.PAIN));
 
             //Secondary
             Secondary.icon = Sprite.Create(DRONE, new Rect(0, 0, DRONE.width, DRONE.height), new Vector2(.5f, .5f));
@@ -566,7 +575,7 @@ namespace HANDY
             Secondary.mustKeyPress = false;
             Secondary.isBullets = false;
             Secondary.shootDelay = 0f;
-            Secondary.activationState = new SerializableEntityStateType(typeof(POWERSAVER));
+            Secondary.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.POWERSAVER));
 
             //Utility 
             Utility.baseRechargeInterval = 15;
@@ -579,7 +588,7 @@ namespace HANDY
             Utility.stockToConsume = 1;
             Utility.isBullets = false;
             Utility.shootDelay = 0.08f;
-            Utility.activationState = new SerializableEntityStateType(typeof(OVERCLOCK));
+            Utility.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.OVERCLOCK));
 
             //Special
             Special.icon = Sprite.Create(FORCED_REASSEMBLY, new Rect(0, 0, FORCED_REASSEMBLY.width, FORCED_REASSEMBLY.height), new Vector2(.5f, .5f));
@@ -592,6 +601,38 @@ namespace HANDY
             Special.baseMaxStock = 1;
             Special.canceledFromSprinting = false;
             Special.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.CHARGEBIGSLAM));
+        }
+        private void RegisterServosStats(CharacterBody characterBody)
+        {
+            characterBody.baseAcceleration = 80f;
+            characterBody.baseArmor = 25;
+            characterBody.baseAttackSpeed = 1;
+            characterBody.baseCrit = 0;
+            characterBody.baseDamage = 30;
+            characterBody.baseJumpCount = 1;
+            characterBody.baseJumpPower = 16;
+            characterBody.baseMaxHealth = 1500;
+            characterBody.baseMaxShield = 0;
+            characterBody.baseMoveSpeed = 7;
+            characterBody.baseNameToken = "SERVOS_BODY_TOKEN";
+            characterBody.subtitleNameToken = "Reactivated Servos";
+            characterBody.baseRegen = 2.5f;
+            characterBody.bodyFlags = CharacterBody.BodyFlags.ImmuneToExecutes | CharacterBody.BodyFlags.SprintAnyDirection | CharacterBody.BodyFlags.ResistantToAOE | CharacterBody.BodyFlags.Mechanical;
+            //characterBody.crosshairPrefab = characterBody.crosshairPrefab = Resources.Load<GameObject>("Prefabs/CharacterBodies/HuntressBody").GetComponent<CharacterBody>().crosshairPrefab;
+            characterBody.hideCrosshair = false;
+            characterBody.hullClassification = HullClassification.Human;
+            characterBody.isChampion = false;
+            characterBody.levelArmor = 0;
+            characterBody.levelAttackSpeed = 0;
+            characterBody.levelCrit = 0;
+            characterBody.levelDamage = 5f;
+            characterBody.levelArmor = 0;
+            characterBody.levelJumpPower = 0;
+            characterBody.levelMaxHealth = 500;
+            characterBody.levelMaxShield = 0;
+            characterBody.levelMoveSpeed = 0;
+            characterBody.levelRegen = 0f;
+            //characterBody.preferredPodPrefab = Resources.Load<GameObject>("prefabs/networkedobjects/robocratepod");
         }
         private void AddServosTokens()
         {
