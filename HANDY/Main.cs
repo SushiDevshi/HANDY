@@ -33,6 +33,7 @@ namespace HANDY
 
     public class Main : BaseUnityPlugin
     {
+        public bool unity;
         public static GameObject HANDGunnerDrone { get; private set; }
         public static GameObject HANDHealingDrone { get; private set; }
         public GameObject HANDBody { get; private set; }
@@ -65,6 +66,8 @@ namespace HANDY
 
             Main.HANDHealingDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone2Body").InstantiateClone("HAND_DRONEHEALER_CLONE", true);
             RegisterNewBody(Main.HANDHealingDrone);
+
+            unity = false;
 
             if (this.HANDBody != null && this.ServosBody != null && this.ServosMaster != null)
             {
@@ -629,7 +632,7 @@ namespace HANDY
             characterBody.levelMaxShield = 0;
             characterBody.levelMoveSpeed = 0;
             characterBody.levelRegen = 0f;
-            characterBody.teamComponent.teamIndex = TeamIndex.Monster;
+            //characterBody.teamComponent.teamIndex = TeamIndex.Monster;
             //characterBody.preferredPodPrefab = Resources.Load<GameObject>("prefabs/networkedobjects/robocratepod");
         }
         private void AddServosTokens()
