@@ -14,6 +14,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using static HANDY.Helpers;
 using static RoR2.CharacterAI.AISkillDriver;
+using EntityStates;
+using EntityStates.HAND.Weapon;
 
 namespace HANDY
 {
@@ -94,6 +96,22 @@ namespace HANDY
             DestroySkillDrivers(ServosMaster);
             CreateSkillDrivers(ServosMaster);
             SetUpDirectorCard(ServosMaster);
+            AddServosTokens();
+        }
+        private void CreateHAND(GameObject HAND)
+        {
+            HAND.AddComponent<HANDOverclockController>();
+            HAND.GetComponent<SfxLocator>().landingSound = "play_char_land";
+            HAND.GetComponent<CharacterMotor>().mass = 250;
+            HAND.GetComponent<CharacterDirection>().turnSpeed = 300;
+            HAND.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale = HAND.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale * .5f;
+
+            AddHANDTokens();
+            RegisterHANDIcons();
+            RegisterSetStateOnHurt(HAND);
+            RegisterSurvivorDef(HAND);
+            RegisterHANDSkills(HAND.GetComponent<SkillLocator>());
+            RegisterHANDStats(HAND.GetComponent<CharacterBody>(), this.HANDPortrait);
         }
         private void SetUpDirectorCard(GameObject ServosMaster)
         {
@@ -254,21 +272,7 @@ namespace HANDY
             self.loadout = new SerializableLoadout();
             orig(self);
         }
-        private void CreateHAND(GameObject HAND)
-        {
-            HAND.AddComponent<HANDOverclockController>();
-            HAND.GetComponent<SfxLocator>().landingSound = "play_char_land";
-            HAND.GetComponent<CharacterMotor>().mass = 250;
-            HAND.GetComponent<CharacterDirection>().turnSpeed = 300;
-            HAND.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale = HAND.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale * .5f;
 
-            AddHANDTokens();
-            RegisterHANDIcons();
-            RegisterSetStateOnHurt(HAND);
-            RegisterSurvivorDef(HAND);
-            RegisterHANDSkills(HAND.GetComponent<SkillLocator>());
-            RegisterHANDStats(HAND.GetComponent<CharacterBody>(), this.HANDPortrait);
-        }
         private void RegisterSurvivorDef(GameObject HAND)
         {
             GameObject displayGameObject = HAND.GetComponent<ModelLocator>().modelTransform.gameObject;
@@ -411,7 +415,7 @@ namespace HANDY
             Primary.stockToConsume = 1;
             Primary.skillNameToken = "HAND_PRIMARY_NAME";
             Primary.skillDescriptionToken = "HAND_PRIMARY_DESCRIPTION";
-            Primary.activationState = new EntityStates.SerializableEntityStateType(typeof(HURT));
+            Primary.activationState = new SerializableEntityStateType(typeof(HURT));
 
             //Secondary
             Secondary.icon = Sprite.Create(DRONE, new Rect(0, 0, DRONE.width, DRONE.height), new Vector2(.5f, .5f));
@@ -428,7 +432,7 @@ namespace HANDY
             Secondary.shootDelay = 0.08f;
             Secondary.skillNameToken = "HAND_SECONDARY_NAME";
             Secondary.skillDescriptionToken = "HAND_SECONDARY_DESCRIPTION";
-            Secondary.activationState = new EntityStates.SerializableEntityStateType(typeof(POWERSAVER));
+            Secondary.activationState = new SerializableEntityStateType(typeof(POWERSAVER));
 
             //Utility 
             Utility.icon = Sprite.Create(OVERCLOCK, new Rect(0, 0, OVERCLOCK.width, OVERCLOCK.height), new Vector2(.5f, .5f));
@@ -444,7 +448,7 @@ namespace HANDY
             Utility.shootDelay = 0.08f;
             Utility.skillNameToken = "HAND_UTILITY_NAME";
             Utility.skillDescriptionToken = "HAND_UTILITY_DESCRIPTION";
-            Utility.activationState = new EntityStates.SerializableEntityStateType(typeof(OVERCLOCK));
+            Utility.activationState = new SerializableEntityStateType(typeof(OVERCLOCK));
 
             //Special
             Special.icon = Sprite.Create(FORCED_REASSEMBLY, new Rect(0, 0, FORCED_REASSEMBLY.width, FORCED_REASSEMBLY.height), new Vector2(.5f, .5f));
@@ -458,11 +462,11 @@ namespace HANDY
             Special.canceledFromSprinting = false;
             Special.skillNameToken = "HAND_SPECIAL_NAME";
             Special.skillDescriptionToken = "HAND_SPECIAL_DESCRIPTION";
-            Special.activationState = new EntityStates.SerializableEntityStateType(typeof(CHARGESLAM));
+            Special.activationState = new SerializableEntityStateType(typeof(CHARGESLAM));
 
             var LoadoutSpecial = ScriptableObject.CreateInstance<SkillDef>();
             LoadoutSpecial.icon = Sprite.Create(UNETHICAL_REASSEMBLY, new Rect(0, 0, UNETHICAL_REASSEMBLY.width, UNETHICAL_REASSEMBLY.height), new Vector2(.5f, .5f));
-            LoadoutSpecial.activationState = new EntityStates.SerializableEntityStateType(typeof(CHARGEBIGSLAM));
+            LoadoutSpecial.activationState = new SerializableEntityStateType(typeof(CHARGEBIGSLAM));
             LoadoutSpecial.baseMaxStock = 1;
             LoadoutSpecial.baseRechargeInterval = 12;
             LoadoutSpecial.beginSkillCooldownOnSkillEnd = false;
@@ -483,7 +487,7 @@ namespace HANDY
 
             var LoadoutPrimary = ScriptableObject.CreateInstance<SkillDef>();
             LoadoutPrimary.icon = Sprite.Create(WHACK, new Rect(0, 0, WHACK.width, WHACK.height), new Vector2(.5f, .5f));
-            LoadoutPrimary.activationState = new EntityStates.SerializableEntityStateType(typeof(WHACK));
+            LoadoutPrimary.activationState = new SerializableEntityStateType(typeof(WHACK));
             LoadoutPrimary.baseMaxStock = 1;
             LoadoutPrimary.baseRechargeInterval = 0;
             LoadoutPrimary.beginSkillCooldownOnSkillEnd = false;
@@ -524,6 +528,70 @@ namespace HANDY
             Array.Resize<SkillFamily.Variant>(ref Primary_Variants, Primary_Variants.Length + 1);
             Primary_Variants[Primary_Variants.Length - 1] = LoadoutPrimaryVariant;
             primaryskillFamily.variants = Primary_Variants;
+        }
+        private void RegisterServosSkills(SkillLocator skillLocator)
+        {
+            SkillFamily primaryskillFamily = skillLocator.primary.skillFamily;
+            SkillFamily secondaryskillFamily = skillLocator.secondary.skillFamily;
+            SkillFamily utilityskillFamily = skillLocator.utility.skillFamily;
+            SkillFamily specialskillFamily = skillLocator.special.skillFamily;
+            SkillDef Primary = primaryskillFamily.variants[primaryskillFamily.defaultVariantIndex].skillDef;
+            SkillDef Secondary = secondaryskillFamily.variants[secondaryskillFamily.defaultVariantIndex].skillDef;
+            SkillDef Utility = utilityskillFamily.variants[utilityskillFamily.defaultVariantIndex].skillDef;
+            SkillDef Special = specialskillFamily.variants[specialskillFamily.defaultVariantIndex].skillDef;
+
+            Primary.noSprint = false;
+            Primary.canceledFromSprinting = false;
+            Primary.baseRechargeInterval = 0;
+            Primary.baseMaxStock = 1;
+            Primary.rechargeStock = 1;
+            Primary.shootDelay = 0.1f;
+            Primary.beginSkillCooldownOnSkillEnd = false;
+            Primary.isCombatSkill = true;
+            Primary.mustKeyPress = false;
+            Primary.requiredStock = 1;
+            Primary.stockToConsume = 1;
+            Primary.activationState = new SerializableEntityStateType(typeof(HURT));
+
+            //Secondary
+            Secondary.icon = Sprite.Create(DRONE, new Rect(0, 0, DRONE.width, DRONE.height), new Vector2(.5f, .5f));
+            Secondary.noSprint = false;
+            Secondary.canceledFromSprinting = false;
+            Secondary.baseRechargeInterval = 20;
+            Secondary.baseMaxStock = 3;
+            Secondary.rechargeStock = 1;
+            Secondary.requiredStock = 1;
+            Secondary.stockToConsume = 1;
+            Secondary.isCombatSkill = false;
+            Secondary.mustKeyPress = false;
+            Secondary.isBullets = false;
+            Secondary.shootDelay = 0f;
+            Secondary.activationState = new SerializableEntityStateType(typeof(POWERSAVER));
+
+            //Utility 
+            Utility.baseRechargeInterval = 15;
+            Utility.noSprint = false;
+            Utility.baseMaxStock = 1;
+            Utility.isCombatSkill = true;
+            Utility.canceledFromSprinting = false;
+            Utility.rechargeStock = 1;
+            Utility.requiredStock = 1;
+            Utility.stockToConsume = 1;
+            Utility.isBullets = false;
+            Utility.shootDelay = 0.08f;
+            Utility.activationState = new SerializableEntityStateType(typeof(OVERCLOCK));
+
+            //Special
+            Special.icon = Sprite.Create(FORCED_REASSEMBLY, new Rect(0, 0, FORCED_REASSEMBLY.width, FORCED_REASSEMBLY.height), new Vector2(.5f, .5f));
+            Special.baseRechargeInterval = 8;
+            Special.rechargeStock = 1;
+            Special.noSprint = false;
+            Special.beginSkillCooldownOnSkillEnd = true;
+            Special.stockToConsume = 1;
+            Special.requiredStock = 1;
+            Special.baseMaxStock = 1;
+            Special.canceledFromSprinting = false;
+            Special.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.CHARGEBIGSLAM));
         }
         private void AddServosTokens()
         {
@@ -598,7 +666,7 @@ namespace HANDY
 
             private void Shooting(Animator animator)
             {
-                PlayAnimation("Gesture", "ChargeSlam", "ChargeSlam.playbackRate", EntityStates.HAND.Weapon.ChargeSlam.baseDuration, animator);
+                PlayAnimation("Gesture", "ChargeSlam", "ChargeSlam.playbackRate", ChargeSlam.baseDuration, animator);
 
                 var coroutine = Fire(animator);
                 StartCoroutine(coroutine);
@@ -608,7 +676,7 @@ namespace HANDY
             {
                 yield return new WaitForSeconds(0.5f);
 
-                PlayAnimation("Gesture", "Slam", "Slam.playbackRate", EntityStates.HAND.Weapon.Slam.baseDuration, animator);
+                PlayAnimation("Gesture", "Slam", "Slam.playbackRate", Slam.baseDuration, animator);
 
                 Destroy(this);
             }

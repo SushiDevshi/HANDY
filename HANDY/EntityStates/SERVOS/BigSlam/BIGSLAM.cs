@@ -14,7 +14,7 @@ namespace Servos.Weapon
     {
         public float attackDamageCoefficient = 4f;
         public float blastDamageCoefficient = 4f;
-        public float baseDuration = 1.5f;
+        public float baseDuration = 1f;
         public float forceMagnitude = 32f;
         public float radius = 6f;
         private float duration;
@@ -100,7 +100,7 @@ namespace Servos.Weapon
                 if (!this.hasSwung)
                 {
                     Ray aimRay = base.GetAimRay();
-                    EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
+                    //EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
                     blastAttack.Fire();
                     for (float num = 0f; num < 9f; num += 1f)
                     {
