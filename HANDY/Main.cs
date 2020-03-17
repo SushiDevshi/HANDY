@@ -69,7 +69,7 @@ namespace HANDY
             if (this.HANDBody != null && this.ServosBody != null && this.ServosMaster != null)
             {
                 CreateHAND(this.HANDBody);
-                CreateServos(this.ServosMaster, this.ServosMaster);
+                CreateServos(this.ServosMaster, this.ServosBody);
 
                 CreateDrones(Main.HANDGunnerDrone, Main.HANDHealingDrone);
             }
@@ -93,17 +93,17 @@ namespace HANDY
 
         private void CreateServos(GameObject ServosMaster, GameObject ServosBody)
         {
-            /*ServosBody.AddComponent<ServosOverclockController>();
+            ServosBody.AddComponent<ServosOverclockController>();
             ServosBody.GetComponent<SfxLocator>().landingSound = "play_char_land";
             ServosBody.GetComponent<CharacterMotor>().mass = 250;
             ServosBody.GetComponent<CharacterDirection>().turnSpeed = 300;
             ServosBody.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale = ServosBody.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale * 2f;
-            */
+            
             GeneralSetUp(ServosMaster, ServosBody);
             DestroySkillDrivers(ServosMaster);
             CreateSkillDrivers(ServosMaster);
             SetUpDirectorCard(ServosMaster);
-            //RegisterServosStats(this.ServosBody.GetComponent<CharacterBody>());
+            RegisterServosStats(this.ServosBody.GetComponent<CharacterBody>());
             RegisterServosSkills(ServosBody.GetComponent<SkillLocator>());
             AddServosTokens();
         }
@@ -113,7 +113,6 @@ namespace HANDY
             HAND.GetComponent<SfxLocator>().landingSound = "play_char_land";
             HAND.GetComponent<CharacterMotor>().mass = 250;
             HAND.GetComponent<CharacterDirection>().turnSpeed = 300;
-            HAND.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale = HAND.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale * .5f;
 
             AddHANDTokens();
             RegisterHANDIcons();
@@ -254,9 +253,9 @@ namespace HANDY
             UtilityDriver.resetCurrentEnemyOnNextDriverSelection = false;
 
             SpecialDriver.activationRequiresTargetLoS = false;
-            SpecialDriver.aimType = AimType.MoveDirection;
+            SpecialDriver.aimType = AimType.AtCurrentEnemy;
             SpecialDriver.customName = "Special";
-            SpecialDriver.driverUpdateTimerOverride = -1f;
+            SpecialDriver.driverUpdateTimerOverride = .8f;
             SpecialDriver.ignoreNodeGraph = false;
             SpecialDriver.maxDistance = 50;
             SpecialDriver.minTargetHealthFraction = float.NegativeInfinity;
@@ -273,8 +272,8 @@ namespace HANDY
             SpecialDriver.selectionRequiresTargetLoS = true;
             SpecialDriver.shouldFireEquipment = false;
             SpecialDriver.shouldSprint = true;
-            SpecialDriver.skillSlot = SkillSlot.Special;
-            SpecialDriver.resetCurrentEnemyOnNextDriverSelection = false;
+            SpecialDriver.skillSlot = SkillSlot.Secondary;
+
         }
         private void CharacterSpawnCard_Awake(On.RoR2.CharacterSpawnCard.orig_Awake orig, CharacterSpawnCard self)
         {
@@ -562,8 +561,7 @@ namespace HANDY
             Primary.stockToConsume = 1;
             Primary.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.PAIN));
 
-            //Secondary
-            Secondary.icon = Sprite.Create(DRONE, new Rect(0, 0, DRONE.width, DRONE.height), new Vector2(.5f, .5f));
+            //secondary
             Secondary.noSprint = false;
             Secondary.canceledFromSprinting = false;
             Secondary.baseRechargeInterval = 20;
@@ -575,7 +573,7 @@ namespace HANDY
             Secondary.mustKeyPress = false;
             Secondary.isBullets = false;
             Secondary.shootDelay = 0f;
-            Secondary.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.POWERSAVER));
+            Secondary.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.HEALINGPAIN));
 
             //Utility 
             Utility.baseRechargeInterval = 15;
@@ -588,14 +586,13 @@ namespace HANDY
             Utility.stockToConsume = 1;
             Utility.isBullets = false;
             Utility.shootDelay = 0.08f;
-            Utility.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.OVERCLOCK));
+            Utility.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.PLAYERPAIN));
 
             //Special
-            Special.icon = Sprite.Create(FORCED_REASSEMBLY, new Rect(0, 0, FORCED_REASSEMBLY.width, FORCED_REASSEMBLY.height), new Vector2(.5f, .5f));
-            Special.baseRechargeInterval = 8;
+            Special.baseRechargeInterval = 10;
             Special.rechargeStock = 1;
             Special.noSprint = false;
-            Special.beginSkillCooldownOnSkillEnd = true;
+            Special.beginSkillCooldownOnSkillEnd = false;
             Special.stockToConsume = 1;
             Special.requiredStock = 1;
             Special.baseMaxStock = 1;
@@ -632,6 +629,7 @@ namespace HANDY
             characterBody.levelMaxShield = 0;
             characterBody.levelMoveSpeed = 0;
             characterBody.levelRegen = 0f;
+            characterBody.teamComponent.teamIndex = TeamIndex.Monster;
             //characterBody.preferredPodPrefab = Resources.Load<GameObject>("prefabs/networkedobjects/robocratepod");
         }
         private void AddServosTokens()

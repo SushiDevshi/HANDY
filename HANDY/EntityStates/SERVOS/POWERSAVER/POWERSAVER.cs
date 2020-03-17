@@ -8,7 +8,7 @@ using UnityEngine.Networking;
 
 namespace Servos.Weapon
 {
-    public class POWERSAVER : BaseState
+    public class HEALINGPAIN : BaseState
     {
         public static float baseDuration = .5f;
         private float duration;
@@ -16,7 +16,7 @@ namespace Servos.Weapon
         public override void OnEnter()
         {
             base.OnEnter();
-            this.duration = POWERSAVER.baseDuration / this.attackSpeedStat;
+            this.duration = HEALINGPAIN.baseDuration / this.attackSpeedStat;
             if (isAuthority && NetworkServer.active)
             {
                 CharacterMaster characterMaster;

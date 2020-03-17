@@ -7,7 +7,7 @@ using UnityEngine.Networking;
 
 namespace Servos.Weapon
 {
-    public class OVERCLOCK : BaseState
+    public class PLAYERPAIN : BaseState
     {
         public float baseDuration = 0.25f;
         public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");
@@ -32,9 +32,9 @@ namespace Servos.Weapon
                     damageType = DamageType.Stun1s,
                     crit = RollCrit()
                 }.Fire();
-                if (OVERCLOCK.hitEffectPrefab)
+                if (PLAYERPAIN.hitEffectPrefab)
                 {
-                    EffectManager.SpawnEffect(OVERCLOCK.hitEffectPrefab, new EffectData
+                    EffectManager.SpawnEffect(PLAYERPAIN.hitEffectPrefab, new EffectData
                     {
                         origin = base.transform.position,
                         scale = 50

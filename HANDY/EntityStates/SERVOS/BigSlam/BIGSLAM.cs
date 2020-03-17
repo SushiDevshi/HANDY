@@ -102,7 +102,7 @@ namespace Servos.Weapon
                     Ray aimRay = base.GetAimRay();
                     //EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
                     blastAttack.Fire();
-                    for (float num = 0f; num < 9f; num += 1f)
+                    /*for (float num = 0f; num < 9f; num += 1f)
                     {
                         float num2 = 6.2831855f;
                         Vector3 forward = new Vector3(Mathf.Cos(num / 9f * num2), 0f, Mathf.Sin(num / 9f * num2));
@@ -119,7 +119,7 @@ namespace Servos.Weapon
                             owner = base.gameObject
                         };
                         ProjectileManager.instance.FireProjectile(fireProjectileInfo2);
-                    }
+                    }*/
                     if (BIGSLAM.notificationEffectPrefab)
                     {
                         EffectManager.SpawnEffect(BIGSLAM.notificationEffectPrefab, new EffectData
