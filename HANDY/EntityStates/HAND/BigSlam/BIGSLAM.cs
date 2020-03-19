@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EntityStates;
 using RoR2;
-using RoR2.Projectile;
 using UnityEngine;
-using UnityEngine.Networking;
 
 namespace HANDY.Weapon
 {
@@ -101,8 +99,8 @@ namespace HANDY.Weapon
                     Ray aimRay = base.GetAimRay();
                     EffectManager.SimpleMuzzleFlash(this.swingEffectPrefab, base.gameObject, "SwingCenter", true);
                     blastAttack.Fire();
-                    var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
-                    if (CheckCollider(enemies))
+ 
+                    if (CheckIfAttackHit(3, base.transform.position + base.characterDirection.forward * 2f, 3f))
                     {
                         BeginHitPause();
                     }
@@ -151,8 +149,7 @@ namespace HANDY.Weapon
             }
             else
             {
-                var enemies = CollectEnemies(3, base.transform.position + base.characterDirection.forward * 2f, 3f);
-                if (base.isAuthority && this.enteredHitPause && this.hitPauseTimer > 0f && (CheckCollider(enemies)))
+                if (base.isAuthority && this.enteredHitPause && this.hitPauseTimer > 0f && CheckIfAttackHit(3, base.transform.position + base.characterDirection.forward * 2f, 3f))
                 {
                     this.hitPauseTimer -= Time.fixedDeltaTime;
                     base.characterMotor.velocity = Vector3.zero;
@@ -173,9 +170,10 @@ namespace HANDY.Weapon
                 this.hitPauseTimer = this.hitPauseDuration;
             }
         }
-        private bool CheckCollider(Collider[] array)
+        private bool CheckIfAttackHit(float radius, Vector3 position, float maxYDiff)
         {
-            // now that we have our enemies, only get the ones within the Y dimension
+            Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
+            array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
             var hurtboxes = array.Where(x => x.GetComponent<HurtBox>() != null);
             List<HurtBoxGroup> allReadyDamaged = new List<HurtBoxGroup>();
             foreach (var hurtBox in hurtboxes)
@@ -188,8 +186,8 @@ namespace HANDY.Weapon
             }
             if (allReadyDamaged == null) return false;
             return allReadyDamaged.Count() > 0;
-
         }
+
         private void ExitHitPause()
         {
             this.hitPauseTimer = 0f;
@@ -219,12 +217,6 @@ namespace HANDY.Weapon
             base.OnExit();
         }
 
-        private Collider[] CollectEnemies(float radius, Vector3 position, float maxYDiff)
-        {
-            Collider[] array = Physics.OverlapSphere(position, radius, LayerIndex.entityPrecise.mask);
-            array = array.Where(x => Mathf.Abs(x.ClosestPoint(base.transform.position).y - base.transform.position.y) <= maxYDiff).ToArray();
-            return array;
-        }
         public override InterruptPriority GetMinimumInterruptPriority()
         {
             return InterruptPriority.PrioritySkill;

@@ -37,8 +37,8 @@ namespace HANDY
         public static GameObject HANDGunnerDrone { get; private set; }
         public static GameObject HANDHealingDrone { get; private set; }
         public GameObject HANDBody { get; private set; }
-        public GameObject ServosBody { get; private set; }
-        public GameObject ServosMaster { get; private set; }
+        //public GameObject ServosBody { get; private set; }
+        //public GameObject ServosMaster { get; private set; }
         public Texture2D HANDPortrait { get; private set; }
         public Texture2D ServosPortrait { get; private set; }
         public Texture2D HURT { get; private set; }
@@ -55,11 +55,12 @@ namespace HANDY
             this.HANDBody = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("HANDCloneBody", true);
             RegisterNewBody(this.HANDBody);
 
-            this.ServosMaster = Resources.Load<GameObject>("prefabs/charactermasters/MercMonsterMaster").InstantiateClone("ServosMaster", true);
+            /*this.ServosMaster = Resources.Load<GameObject>("prefabs/charactermasters/MercMonsterMaster").InstantiateClone("ServosMaster", true);
             RegisterNewMaster(this.ServosMaster);
 
             this.ServosBody = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("ServosBody", true);
             RegisterNewBody(this.ServosBody);
+            */ 
 
             Main.HANDGunnerDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone1Body").InstantiateClone("HAND_DRONE_CLONE", true);
             RegisterNewBody(Main.HANDGunnerDrone);
@@ -69,10 +70,10 @@ namespace HANDY
 
             unity = false;
 
-            if (this.HANDBody != null && this.ServosBody != null && this.ServosMaster != null)
+            if (this.HANDBody != null && Main.HANDHealingDrone != null && Main.HANDGunnerDrone != null/*this.ServosBody != null && this.ServosMaster != null*/)
             {
                 CreateHAND(this.HANDBody);
-                CreateServos(this.ServosMaster, this.ServosBody);
+                //CreateServos(this.ServosMaster, this.ServosBody);
 
                 CreateDrones(Main.HANDGunnerDrone, Main.HANDHealingDrone);
             }
@@ -94,7 +95,7 @@ namespace HANDY
             List<ItemDisplayRuleSet.NamedRuleGroup> list = new List<ItemDisplayRuleSet.NamedRuleGroup>();
         }
 
-        private void CreateServos(GameObject ServosMaster, GameObject ServosBody)
+        /*private void CreateServos(GameObject ServosMaster, GameObject ServosBody)
         {
             ServosBody.AddComponent<ServosOverclockController>();
             ServosBody.GetComponent<SfxLocator>().landingSound = "play_char_land";
@@ -109,7 +110,7 @@ namespace HANDY
             RegisterServosStats(this.ServosBody.GetComponent<CharacterBody>());
             RegisterServosSkills(ServosBody.GetComponent<SkillLocator>());
             AddServosTokens();
-        }
+        }*/
         private void CreateHAND(GameObject HAND)
         {
             HAND.AddComponent<HANDOverclockController>();
@@ -124,7 +125,7 @@ namespace HANDY
             RegisterHANDSkills(HAND.GetComponent<SkillLocator>());
             RegisterHANDStats(HAND.GetComponent<CharacterBody>(), this.HANDPortrait);
         }
-        private void SetUpDirectorCard(GameObject ServosMaster)
+        /*private void SetUpDirectorCard(GameObject ServosMaster)
         {
             On.RoR2.CharacterSpawnCard.Awake += CharacterSpawnCard_Awake;
             CharacterSpawnCard characterSpawnCard = ScriptableObject.CreateInstance<CharacterSpawnCard>();
@@ -282,7 +283,7 @@ namespace HANDY
         {
             self.loadout = new SerializableLoadout();
             orig(self);
-        }
+        }*/
 
         private void RegisterSurvivorDef(GameObject HAND)
         {
@@ -540,7 +541,7 @@ namespace HANDY
             Primary_Variants[Primary_Variants.Length - 1] = LoadoutPrimaryVariant;
             primaryskillFamily.variants = Primary_Variants;
         }
-        private void RegisterServosSkills(SkillLocator skillLocator)
+        /*private void RegisterServosSkills(SkillLocator skillLocator)
         {
             SkillFamily primaryskillFamily = skillLocator.primary.skillFamily;
             SkillFamily secondaryskillFamily = skillLocator.secondary.skillFamily;
@@ -638,7 +639,7 @@ namespace HANDY
         private void AddServosTokens()
         {
             R2API.AssetPlus.Languages.AddToken("SERVOS_BODY_TOKEN", "Servos");
-        }
+        }*/
             private void AddHANDTokens()
         {
             R2API.AssetPlus.Languages.AddToken("HAND_CLONE_BODY_TOKEN", "HAN-D");

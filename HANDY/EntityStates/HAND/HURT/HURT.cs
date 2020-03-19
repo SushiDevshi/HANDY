@@ -145,7 +145,6 @@ namespace HANDY.Weapon
             }
             if (allReadyDamaged == null) return false;
             return allReadyDamaged.Count() > 0;
-
         }
 
 

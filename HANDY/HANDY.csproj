@@ -31,15 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="EntityStates\SERVOS\BigSlam\BIGSLAM.cs" />
-    <Compile Include="EntityStates\SERVOS\BigSlam\CHARGEBIGSLAM.cs" />
     <Compile Include="EntityStates\Servos.cs" />
     <Compile Include="EntityStates\HAND\WHACK\WHACK.cs" />
     <Compile Include="EntityStates\HAND\OVERCLOCK\OVERCLOCK.cs" />
     <Compile Include="EntityStates\HAND\POWERSAVER\POWERSAVER.cs" />
-    <Compile Include="EntityStates\SERVOS\HURT\HURT.cs" />
-    <Compile Include="EntityStates\SERVOS\OVERCLOCK\OVERCLOCK.cs" />
-    <Compile Include="EntityStates\SERVOS\POWERSAVER\POWERSAVER.cs" />
     <Compile Include="Stuff\SERVOSOverclockController.cs" />
     <Compile Include="Stuff\ExtendedOverlapAttack.cs" />
     <Compile Include="Stuff\Helpers.cs" />
