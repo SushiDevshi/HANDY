@@ -5,7 +5,6 @@ using R2API;
 using R2API.Utils;
 using RoR2;
 using RoR2.CharacterAI;
-using RoR2.Navigation;
 using RoR2.Skills;
 using System;
 using System.Collections;
@@ -13,10 +12,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using static HANDY.Helpers;
-using static RoR2.CharacterAI.AISkillDriver;
 using EntityStates;
 using EntityStates.HAND.Weapon;
-using Servos;
 
 namespace HANDY
 {
@@ -37,30 +34,18 @@ namespace HANDY
         public static GameObject HANDGunnerDrone { get; private set; }
         public static GameObject HANDHealingDrone { get; private set; }
         public GameObject HANDBody { get; private set; }
-        //public GameObject ServosBody { get; private set; }
-        //public GameObject ServosMaster { get; private set; }
         public Texture2D HANDPortrait { get; private set; }
-        public Texture2D ServosPortrait { get; private set; }
         public Texture2D HURT { get; private set; }
         public Texture2D WHACK { get; private set; }
         public Texture2D DRONE { get; private set; }
         public Texture2D OVERCLOCK { get; private set; }
         public Texture2D FORCED_REASSEMBLY { get; private set; }
         public Texture2D UNETHICAL_REASSEMBLY { get; private set; }
-
-        public DirectorAPI.DirectorCardHolder ServosDirectorCardHolder;
         private void Awake()
         {
-            //On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
+            On.RoR2.Networking.GameNetworkManager.OnClientConnect += (self, user, t) => { };
             this.HANDBody = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("HANDCloneBody", true);
             RegisterNewBody(this.HANDBody);
-
-            /*this.ServosMaster = Resources.Load<GameObject>("prefabs/charactermasters/MercMonsterMaster").InstantiateClone("ServosMaster", true);
-            RegisterNewMaster(this.ServosMaster);
-
-            this.ServosBody = Resources.Load<GameObject>("Prefabs/CharacterBodies/HANDBody").InstantiateClone("ServosBody", true);
-            RegisterNewBody(this.ServosBody);
-            */ 
 
             Main.HANDGunnerDrone = Resources.Load<GameObject>("Prefabs/CharacterBodies/Drone1Body").InstantiateClone("HAND_DRONE_CLONE", true);
             RegisterNewBody(Main.HANDGunnerDrone);
@@ -70,11 +55,9 @@ namespace HANDY
 
             unity = false;
 
-            if (this.HANDBody != null && Main.HANDHealingDrone != null && Main.HANDGunnerDrone != null/*this.ServosBody != null && this.ServosMaster != null*/)
+            if (this.HANDBody != null && Main.HANDHealingDrone != null && Main.HANDGunnerDrone != null)
             {
                 CreateHAND(this.HANDBody);
-                //CreateServos(this.ServosMaster, this.ServosBody);
-
                 CreateDrones(Main.HANDGunnerDrone, Main.HANDHealingDrone);
             }
 
@@ -95,22 +78,7 @@ namespace HANDY
             List<ItemDisplayRuleSet.NamedRuleGroup> list = new List<ItemDisplayRuleSet.NamedRuleGroup>();
         }
 
-        /*private void CreateServos(GameObject ServosMaster, GameObject ServosBody)
-        {
-            ServosBody.AddComponent<ServosOverclockController>();
-            ServosBody.GetComponent<SfxLocator>().landingSound = "play_char_land";
-            ServosBody.GetComponent<CharacterMotor>().mass = 250;
-            ServosBody.GetComponent<CharacterDirection>().turnSpeed = 300;
-            ServosBody.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale = ServosBody.GetComponent<ModelLocator>().modelBaseTransform.transform.localScale * 2f;
-            
-            GeneralSetUp(ServosMaster, ServosBody);
-            DestroySkillDrivers(ServosMaster);
-            CreateSkillDrivers(ServosMaster);
-            SetUpDirectorCard(ServosMaster);
-            RegisterServosStats(this.ServosBody.GetComponent<CharacterBody>());
-            RegisterServosSkills(ServosBody.GetComponent<SkillLocator>());
-            AddServosTokens();
-        }*/
+
         private void CreateHAND(GameObject HAND)
         {
             HAND.AddComponent<HANDOverclockController>();
@@ -125,165 +93,6 @@ namespace HANDY
             RegisterHANDSkills(HAND.GetComponent<SkillLocator>());
             RegisterHANDStats(HAND.GetComponent<CharacterBody>(), this.HANDPortrait);
         }
-        /*private void SetUpDirectorCard(GameObject ServosMaster)
-        {
-            On.RoR2.CharacterSpawnCard.Awake += CharacterSpawnCard_Awake;
-            CharacterSpawnCard characterSpawnCard = ScriptableObject.CreateInstance<CharacterSpawnCard>();
-            On.RoR2.CharacterSpawnCard.Awake -= CharacterSpawnCard_Awake;
-            characterSpawnCard.directorCreditCost = 250;
-            characterSpawnCard.forbiddenAsBoss = false;
-            characterSpawnCard.forbiddenFlags = NodeFlags.NoCharacterSpawn;
-            characterSpawnCard.hullSize = HullClassification.Human;
-            characterSpawnCard.loadout = new SerializableLoadout();
-            characterSpawnCard.name = "cscservosboss";
-            characterSpawnCard.nodeGraphType = MapNodeGroup.GraphType.Ground;
-            characterSpawnCard.noElites = false;
-            characterSpawnCard.occupyPosition = false;
-            characterSpawnCard.prefab = ServosMaster;
-            characterSpawnCard.requiredFlags = NodeFlags.None;
-            characterSpawnCard.sendOverNetwork = true;
-            DirectorCard directorCard = new DirectorCard();
-
-            directorCard.allowAmbushSpawn = true;
-            directorCard.forbiddenUnlockable = "";
-            directorCard.minimumStageCompletions = 4;
-            directorCard.preventOverhead = false;
-            directorCard.requiredUnlockable = "";
-            directorCard.selectionWeight = 1;
-            directorCard.spawnCard = characterSpawnCard;
-
-            directorCard.spawnDistance = DirectorCore.MonsterSpawnDistance.Standard;
-            this.ServosDirectorCardHolder = new DirectorAPI.DirectorCardHolder();
-            this.ServosDirectorCardHolder.Card = directorCard;
-            this.ServosDirectorCardHolder.InteractableCategory = 0;
-            this.ServosDirectorCardHolder.MonsterCategory = DirectorAPI.MonsterCategory.Minibosses;
-        }
-            private void DestroySkillDrivers(GameObject ServosMaster)
-        {
-            AISkillDriver SkillDriver1 = ServosMaster.GetComponent<AISkillDriver>();
-            AISkillDriver SkillDriver2 = ServosMaster.GetComponent<AISkillDriver>();
-            AISkillDriver SkillDriver3 = ServosMaster.GetComponent<AISkillDriver>();
-            AISkillDriver SkillDriver4 = ServosMaster.GetComponent<AISkillDriver>();
-
-            Destroy(SkillDriver1);
-            Destroy(SkillDriver2);
-            Destroy(SkillDriver3);
-            Destroy(SkillDriver4);
-        }
-        private void GeneralSetUp(GameObject ServosMaster, GameObject ServosBody)
-        {
-            BaseAI ServosAI = ServosMaster.GetComponent<BaseAI>();
-            CharacterMaster ServosCharacterMaster = ServosMaster.GetComponent<CharacterMaster>();
-
-            ServosCharacterMaster.isBoss = true;
-            ServosCharacterMaster.bodyPrefab = ServosBody;
-            ServosCharacterMaster.teamIndex = TeamIndex.Monster;
-
-            ServosAI.desiredSpawnNodeGraphType = RoR2.Navigation.MapNodeGroup.GraphType.Ground;
-            ServosAI.navigationType = BaseAI.NavigationType.Nodegraph;
-        }
-        private void CreateSkillDrivers(GameObject ServosMaster)
-        {
-            AISkillDriver PrimaryDriver = ServosMaster.AddComponent<AISkillDriver>();
-            AISkillDriver SecondaryDriver = ServosMaster.AddComponent<AISkillDriver>();
-            AISkillDriver UtilityDriver = ServosMaster.AddComponent<AISkillDriver>();
-            AISkillDriver SpecialDriver = ServosMaster.AddComponent<AISkillDriver>();
-
-            PrimaryDriver.activationRequiresTargetLoS = false;
-            PrimaryDriver.aimType = AimType.AtCurrentEnemy;
-            PrimaryDriver.customName = "Primary";
-            PrimaryDriver.driverUpdateTimerOverride = .8f;
-            PrimaryDriver.ignoreNodeGraph = false;
-            PrimaryDriver.maxDistance = 10;
-            PrimaryDriver.minTargetHealthFraction = float.NegativeInfinity;
-            PrimaryDriver.maxUserHealthFraction = float.PositiveInfinity;
-            PrimaryDriver.minDistance = 1f;
-            PrimaryDriver.minTargetHealthFraction = float.NegativeInfinity;
-            PrimaryDriver.minUserHealthFraction = float.NegativeInfinity;
-            PrimaryDriver.moveInputScale = 1f;
-            PrimaryDriver.movementType = MovementType.ChaseMoveTarget;
-            PrimaryDriver.moveTargetType = TargetType.CurrentEnemy;
-            PrimaryDriver.noRepeat = false;
-            PrimaryDriver.requiredSkill = null;
-            PrimaryDriver.requireEquipmentReady = false;
-            PrimaryDriver.selectionRequiresTargetLoS = true;
-            PrimaryDriver.shouldFireEquipment = false;
-            PrimaryDriver.shouldSprint = true;
-            PrimaryDriver.skillSlot = SkillSlot.Primary;
-
-            SecondaryDriver.activationRequiresTargetLoS = false;
-            SecondaryDriver.aimType = AimType.MoveDirection;
-            SecondaryDriver.customName = "Secondary";
-            SecondaryDriver.driverUpdateTimerOverride = .8f;
-            SecondaryDriver.ignoreNodeGraph = false;
-            SecondaryDriver.maxDistance = 100;
-            SecondaryDriver.minTargetHealthFraction = float.NegativeInfinity;
-            SecondaryDriver.maxUserHealthFraction = float.PositiveInfinity;
-            SecondaryDriver.minDistance = 0f;
-            SecondaryDriver.minTargetHealthFraction = float.NegativeInfinity;
-            SecondaryDriver.minUserHealthFraction = float.NegativeInfinity;
-            SecondaryDriver.moveInputScale = 1f;
-            SecondaryDriver.movementType = MovementType.FleeMoveTarget;
-            SecondaryDriver.moveTargetType = TargetType.NearestFriendlyInSkillRange;
-            SecondaryDriver.noRepeat = false;
-            SecondaryDriver.requiredSkill = null;
-            SecondaryDriver.requireEquipmentReady = false;
-            SecondaryDriver.selectionRequiresTargetLoS = true;
-            SecondaryDriver.shouldFireEquipment = false;
-            SecondaryDriver.shouldSprint = true;
-            SecondaryDriver.skillSlot = SkillSlot.Secondary;
-
-            UtilityDriver.activationRequiresTargetLoS = false;
-            UtilityDriver.aimType = AimType.MoveDirection;
-            UtilityDriver.customName = "Utility";
-            UtilityDriver.driverUpdateTimerOverride = -1f;
-            UtilityDriver.ignoreNodeGraph = false;
-            UtilityDriver.maxDistance = 50;
-            UtilityDriver.minTargetHealthFraction = float.NegativeInfinity;
-            UtilityDriver.maxUserHealthFraction = float.PositiveInfinity;
-            UtilityDriver.minDistance = 0f;
-            UtilityDriver.minTargetHealthFraction = float.NegativeInfinity;
-            UtilityDriver.minUserHealthFraction = float.NegativeInfinity;
-            UtilityDriver.moveInputScale = 1f;
-            UtilityDriver.movementType = MovementType.ChaseMoveTarget;
-            UtilityDriver.moveTargetType = TargetType.CurrentEnemy;
-            UtilityDriver.noRepeat = false;
-            UtilityDriver.requiredSkill = null;
-            UtilityDriver.requireEquipmentReady = false;
-            UtilityDriver.selectionRequiresTargetLoS = true;
-            UtilityDriver.shouldFireEquipment = false;
-            UtilityDriver.shouldSprint = true;
-            UtilityDriver.skillSlot = SkillSlot.Utility;
-            UtilityDriver.resetCurrentEnemyOnNextDriverSelection = false;
-
-            SpecialDriver.activationRequiresTargetLoS = false;
-            SpecialDriver.aimType = AimType.AtCurrentEnemy;
-            SpecialDriver.customName = "Special";
-            SpecialDriver.driverUpdateTimerOverride = .8f;
-            SpecialDriver.ignoreNodeGraph = false;
-            SpecialDriver.maxDistance = 50;
-            SpecialDriver.minTargetHealthFraction = float.NegativeInfinity;
-            SpecialDriver.maxUserHealthFraction = float.PositiveInfinity;
-            SpecialDriver.minDistance = 0f;
-            SpecialDriver.minTargetHealthFraction = float.NegativeInfinity;
-            SpecialDriver.minUserHealthFraction = float.NegativeInfinity;
-            SpecialDriver.moveInputScale = 1f;
-            SpecialDriver.movementType = MovementType.ChaseMoveTarget;
-            SpecialDriver.moveTargetType = TargetType.CurrentEnemy;
-            SpecialDriver.noRepeat = false;
-            SpecialDriver.requiredSkill = null;
-            SpecialDriver.requireEquipmentReady = false;
-            SpecialDriver.selectionRequiresTargetLoS = true;
-            SpecialDriver.shouldFireEquipment = false;
-            SpecialDriver.shouldSprint = true;
-            SpecialDriver.skillSlot = SkillSlot.Secondary;
-
-        }
-        private void CharacterSpawnCard_Awake(On.RoR2.CharacterSpawnCard.orig_Awake orig, CharacterSpawnCard self)
-        {
-            self.loadout = new SerializableLoadout();
-            orig(self);
-        }*/
 
         private void RegisterSurvivorDef(GameObject HAND)
         {
@@ -540,107 +349,16 @@ namespace HANDY
             Array.Resize<SkillFamily.Variant>(ref Primary_Variants, Primary_Variants.Length + 1);
             Primary_Variants[Primary_Variants.Length - 1] = LoadoutPrimaryVariant;
             primaryskillFamily.variants = Primary_Variants;
-        }
-        /*private void RegisterServosSkills(SkillLocator skillLocator)
-        {
-            SkillFamily primaryskillFamily = skillLocator.primary.skillFamily;
-            SkillFamily secondaryskillFamily = skillLocator.secondary.skillFamily;
-            SkillFamily utilityskillFamily = skillLocator.utility.skillFamily;
-            SkillFamily specialskillFamily = skillLocator.special.skillFamily;
-            SkillDef Primary = primaryskillFamily.variants[primaryskillFamily.defaultVariantIndex].skillDef;
-            SkillDef Secondary = secondaryskillFamily.variants[secondaryskillFamily.defaultVariantIndex].skillDef;
-            SkillDef Utility = utilityskillFamily.variants[utilityskillFamily.defaultVariantIndex].skillDef;
-            SkillDef Special = specialskillFamily.variants[specialskillFamily.defaultVariantIndex].skillDef;
 
-            Primary.noSprint = false;
-            Primary.canceledFromSprinting = false;
-            Primary.baseRechargeInterval = 0;
-            Primary.baseMaxStock = 1;
-            Primary.rechargeStock = 1;
-            Primary.shootDelay = 0.1f;
-            Primary.beginSkillCooldownOnSkillEnd = false;
-            Primary.isCombatSkill = true;
-            Primary.mustKeyPress = false;
-            Primary.requiredStock = 1;
-            Primary.stockToConsume = 1;
-            Primary.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.PAIN));
-
-            //secondary
-            Secondary.noSprint = false;
-            Secondary.canceledFromSprinting = false;
-            Secondary.baseRechargeInterval = 20;
-            Secondary.baseMaxStock = 3;
-            Secondary.rechargeStock = 1;
-            Secondary.requiredStock = 1;
-            Secondary.stockToConsume = 1;
-            Secondary.isCombatSkill = false;
-            Secondary.mustKeyPress = false;
-            Secondary.isBullets = false;
-            Secondary.shootDelay = 0f;
-            Secondary.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.HEALINGPAIN));
-
-            //Utility 
-            Utility.baseRechargeInterval = 15;
-            Utility.noSprint = false;
-            Utility.baseMaxStock = 1;
-            Utility.isCombatSkill = true;
-            Utility.canceledFromSprinting = false;
-            Utility.rechargeStock = 1;
-            Utility.requiredStock = 1;
-            Utility.stockToConsume = 1;
-            Utility.isBullets = false;
-            Utility.shootDelay = 0.08f;
-            Utility.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.PLAYERPAIN));
-
-            //Special
-            Special.baseRechargeInterval = 10;
-            Special.rechargeStock = 1;
-            Special.noSprint = false;
-            Special.beginSkillCooldownOnSkillEnd = false;
-            Special.stockToConsume = 1;
-            Special.requiredStock = 1;
-            Special.baseMaxStock = 1;
-            Special.canceledFromSprinting = false;
-            Special.activationState = new SerializableEntityStateType(typeof(Servos.Weapon.CHARGEBIGSLAM));
-        }
-        private void RegisterServosStats(CharacterBody characterBody)
-        {
-            characterBody.baseAcceleration = 80f;
-            characterBody.baseArmor = 25;
-            characterBody.baseAttackSpeed = 1;
-            characterBody.baseCrit = 0;
-            characterBody.baseDamage = 30;
-            characterBody.baseJumpCount = 1;
-            characterBody.baseJumpPower = 16;
-            characterBody.baseMaxHealth = 1500;
-            characterBody.baseMaxShield = 0;
-            characterBody.baseMoveSpeed = 7;
-            characterBody.baseNameToken = "SERVOS_BODY_TOKEN";
-            characterBody.subtitleNameToken = "Reactivated Servos";
-            characterBody.baseRegen = 2.5f;
-            characterBody.bodyFlags = CharacterBody.BodyFlags.ImmuneToExecutes | CharacterBody.BodyFlags.SprintAnyDirection | CharacterBody.BodyFlags.ResistantToAOE | CharacterBody.BodyFlags.Mechanical;
-            //characterBody.crosshairPrefab = characterBody.crosshairPrefab = Resources.Load<GameObject>("Prefabs/CharacterBodies/HuntressBody").GetComponent<CharacterBody>().crosshairPrefab;
-            characterBody.hideCrosshair = false;
-            characterBody.hullClassification = HullClassification.Human;
-            characterBody.isChampion = false;
-            characterBody.levelArmor = 0;
-            characterBody.levelAttackSpeed = 0;
-            characterBody.levelCrit = 0;
-            characterBody.levelDamage = 5f;
-            characterBody.levelArmor = 0;
-            characterBody.levelJumpPower = 0;
-            characterBody.levelMaxHealth = 500;
-            characterBody.levelMaxShield = 0;
-            characterBody.levelMoveSpeed = 0;
-            characterBody.levelRegen = 0f;
-            //characterBody.teamComponent.teamIndex = TeamIndex.Monster;
-            //characterBody.preferredPodPrefab = Resources.Load<GameObject>("prefabs/networkedobjects/robocratepod");
-        }
-        private void AddServosTokens()
-        {
-            R2API.AssetPlus.Languages.AddToken("SERVOS_BODY_TOKEN", "Servos");
-        }*/
-            private void AddHANDTokens()
+            LoadoutAPI.AddSkill(typeof(HURT));
+            LoadoutAPI.AddSkill(typeof(POWERSAVER));
+            LoadoutAPI.AddSkill(typeof(OVERCLOCK));
+            LoadoutAPI.AddSkill(typeof(CHARGESLAM));
+            LoadoutAPI.AddSkill(typeof(SLAM));
+            LoadoutAPI.AddSkill(typeof(CHARGEBIGSLAM));
+            LoadoutAPI.AddSkill(typeof(BIGSLAM));
+        }        
+        private void AddHANDTokens()
         {
             R2API.AssetPlus.Languages.AddToken("HAND_CLONE_BODY_TOKEN", "HAN-D");
             R2API.AssetPlus.Languages.AddToken("HAND_GUNNERDRONE_NAME_TOKEN", "HAN-D Gunner Drone");
@@ -678,7 +396,7 @@ namespace HANDY
                                 damageReport.attacker.GetComponent<HANDOverclockController>().AddDurationOnHit();
                                 if (TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(damageReport.attackerBody.teamComponent.teamIndex).Count != 15 && damageReport.attackerBody.multiKillCount <= 4)
                                 {
-                                    SendNetworkMessage(damageReport.attacker.GetComponent<CharacterBody>().networkIdentity.netId, 1);
+                                    SendNetworkMessage(damageReport.attackerBody.networkIdentity.netId, 1);
                                     damageReport.attackerBody.healthComponent.HealFraction(10, default);
 
                                 }
@@ -735,7 +453,6 @@ namespace HANDY
                 Util.PlaySound("Play_MULT_shift_hit", this.gameObject);
             }
         }
-
         public const Int16 HandleId = 9692;
 
         public class MyMessage : MessageBase
@@ -810,7 +527,7 @@ namespace HANDY
                                 if (characterMaster.gameObject && characterMaster.bodyPrefab && characterBody.networkIdentity.netId.Value > 0 && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
                                 {
                                     //base.Logger.Log(BepInEx.Logging.LogLevel.Info, "characterMaster.gameObject and characterMaster.bodyPrefab are not nulL! Switching body prefabs and spawning.");
-                                    characterMaster.bodyPrefab = Main.HANDGunnerDrone   ;
+                                    characterMaster.bodyPrefab = Main.HANDGunnerDrone;
                                     characterMaster.Respawn(characterMaster.GetBody().footPosition + Vector3.up + Vector3.up, Quaternion.identity);
 
                                     if (characterMaster.gameObject.GetComponent<AIOwnership>() && characterBody.networkIdentity.netId.Value > 0 && characterBody.multiKillCount <= 4 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 8 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 9 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 10 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 11 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 12 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 13 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 14 && TeamComponent.GetTeamMembers(characterBody.teamComponent.teamIndex).Count != 15)
@@ -875,6 +592,10 @@ namespace HANDY
                                 component5.isHealer = true;
                                 component5.fullVision = true;
                             }
+                        }
+                        else
+                        {
+                            Debug.Log("That's not a valid number retard");
                         }
                     }
                 }

@@ -18,7 +18,7 @@ namespace HANDY.Weapon
         public float forceMagnitude = 32f;
         public float radius = 6f;//sunder
         public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");
-        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/handslamtrail");
+        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/muzzleflashes/muzzleflashloader");
         public GameObject projectilePrefab = Resources.Load<GameObject>("prefabs/projectiles/sunder");
         private Transform hammerChildTransform;
         private ExtendedOverlapAttack attack;

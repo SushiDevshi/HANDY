@@ -34,7 +34,7 @@ namespace HANDY.Weapon
         private Vector3 storedVelocity;
 
         public static GameObject hitEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfxmedium");
-        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/handslamtrail");
+        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/muzzleflashes/muzzleflashloader");
         public override void OnEnter()
         {
             base.OnEnter();

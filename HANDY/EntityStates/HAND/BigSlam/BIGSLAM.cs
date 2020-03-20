@@ -18,7 +18,7 @@ namespace HANDY.Weapon
 
         public static GameObject notificationEffectPrefab = Resources.Load<GameObject>("prefabs/effects/omnieffect/omniimpactvfx");
         public static GameObject rumbleEffectPrefab = Resources.Load<GameObject>("prefabs/effects/impacteffects/beetlequeendeathimpact");
-        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/handslamtrail");
+        public GameObject swingEffectPrefab = Resources.Load<GameObject>("prefabs/effects/muzzleflashes/muzzleflashloader");
 
 
         private Animator modelAnimator;
